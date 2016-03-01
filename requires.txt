@@ -1,0 +1,4 @@
+ipython==4.1.1
+notebook==4.1.0
+graphviz==0.4.10
+Appium-Python-Client==0.21
