@@ -14,7 +14,13 @@ base_config = {
     'SUT': {
         'interface': 'interface',
         'engine': 'engine',
-    }
+    },
+    'INCOM': {
+        'comm': 'Internal<BR/>Communication',
+    },
+    'EXCOM': {
+        'comm': 'External<BR/>Communication',
+    },
 }
 
 def basedesgin_graphviz(config=base_config):
@@ -23,7 +29,7 @@ def basedesgin_graphviz(config=base_config):
     <TABLE>
       <TR>
           <TD PORT="collect" WIDTH="10" COLSPAN="3">%s</TD>
-          <TD BGCOLOR="blue" WIDTH="10" COLSPAN="3">%s</TD>
+          <TD PORT="validate" BGCOLOR="blue" WIDTH="10" COLSPAN="3">%s</TD>
           <TD PORT="collect-out" BGCOLOR="grey" WIDTH="10" COLSPAN="3">%s</TD>
       </TR>
       <TR>
@@ -32,8 +38,8 @@ def basedesgin_graphviz(config=base_config):
     </TABLE>>""" % (config['stub']['mata'],
                     config['stub']['validator'],
                     config['stub']['collection']),
-                    shape='polygon',center='true', sides = '5')
-    G.node('SimulatedSUT', shape='box', label="""<
+                    shape='diamond',center='true', sides = '5')
+    G.node('SimulatedSUT', shape='component', label="""<
     <TABLE>
       <TR>
           <TD BGCOLOR="red" WIDTH="10" COLSPAN="3">%s</TD>
@@ -44,7 +50,7 @@ def basedesgin_graphviz(config=base_config):
       </TR>
     </TABLE>>""" % (config['SimulatedSUT']['material'],
                     config['SimulatedSUT']['engine']))
-    G.node('SUT', shape='box3d', label="""<
+    G.node('SUT', shape='component', label="""<
     <TABLE>
       <TR>
           <TD BGCOLOR="red" WIDTH="10" COLSPAN="3">%s</TD>
@@ -55,11 +61,23 @@ def basedesgin_graphviz(config=base_config):
       </TR>
     </TABLE>>""" % (config['SUT']['interface'],
                     config['SUT']['engine']))
-    G.node('Communication', shape='ellipse')
+    G.node('ExCommunication', label="""<
+    <TABLE>
+        <TR>
+            <TD>%s</TD>
+        </TR>
+    </TABLE>>""" % (config['EXCOM']['comm']), shape='box3d')
+    G.node('InCommunication', label="""<
+    <TABLE>
+        <TR>
+            <TD>%s</TD>
+        </TR>
+    </TABLE>>""" % (config['INCOM']['comm']), shape='box')
 
     G.edge('stub:collect', 'stub:collect-out', color="grey")
-    G.edge('stub', 'Communication', label='order', color="grey")
-    G.edge('Communication', 'SUT', dir='both', color="red:blue")
-    G.edge('stub', 'SimulatedSUT', dir='both', color="red:blue", label='validate')
+    G.edge('stub:collect-out', 'ExCommunication', label='order', color="grey")
+    G.edge('ExCommunication', 'SUT', dir='both', color="red:blue")
+    G.edge('stub:validate', 'InCommunication', dir='both', color="red:blue", label='validate')
+    G.edge('InCommunication', 'SimulatedSUT', dir='both', color="red:blue")
 
     return G
