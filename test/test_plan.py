@@ -1,0 +1,11 @@
+import core.test
+
+
+def urls():
+    return ['http://10.0.0.105:5000/',
+            'http://10.0.0.105:5000/mod',
+            'http://www.baidu.com/']
+
+def TestGenerator():
+    for url in urls():
+        yield core.test.Test(url), url

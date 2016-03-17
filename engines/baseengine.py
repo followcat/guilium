@@ -1,0 +1,51 @@
+import time
+import socket
+import threading
+import subprocess
+
+import appium.webdriver
+
+
+class BaseEngine(object):
+    """"""
+    desired_caps = {
+        'app': 'Browser',
+        'platformName': 'Android',
+        'platformVersion': '4.4',
+        'deviceName': 'Android Emulator'
+    }
+    def __init__(self, name):
+        self.name = name
+        self.get_assign_port_lock = threading.Lock()
+
+    def start(self):
+        self.port = self.pickfreeport()
+        command = ['appium', '--command-timeout=300',
+                   '--avd=%s'%self.name, '-p', str(self.port)]
+        self.p = subprocess.Popen(command,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+        while(True):
+            outstr = self.p.stdout.readline()
+            if "Appium REST http interface listener started on" in outstr:
+                break
+        self.driver = appium.webdriver.Remote('http://localhost:%s/wd/hub' % self.port,
+                                              self.desired_caps)
+        self.initaction()
+
+    def initaction(self):
+        self.driver.switch_to.context('NATIVE_APP')
+        self.driver.tap([(240, 68)])
+        time.sleep(0.5)
+        self.driver.tap([(20, 68)])
+        time.sleep(0.5)
+        self.driver.tap([(240, 400)])
+        time.sleep(0.5)
+
+    def pickfreeport(self):
+        with self.get_assign_port_lock:
+            _socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            _socket.bind(('127.0.0.1', 0))
+            addr, port = _socket.getsockname()
+            _socket.close()
+        return port
