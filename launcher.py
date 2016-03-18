@@ -27,3 +27,7 @@ class Runtime(object):
     def start_test(self):
         self.application.start()
         self.communication.start()
+
+    def stop_test(self):
+        self.application.stop()
+        self.communication.stop()

@@ -8,3 +8,6 @@ class Storage(object):
         if name not in self.stack:
             self.stack[name] = {}
         self.stack[name].update(data)
+
+    def get(self):
+        return self.stack

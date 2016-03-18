@@ -16,3 +16,8 @@ class Application(checkmate.checkmate.core.application.Application):
         """"""
         for _c in self.components.values():
             _c.start()
+
+    def stop(self):
+        for _c in self.components.values():
+            _c.stop()
+
