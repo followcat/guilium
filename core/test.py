@@ -18,3 +18,7 @@ class Test:
                     break
             else:
                 break
+        for validator in runtime.validators:
+            validator.validate(self.test_url, runtime.storage,
+                               runtime.application.sut.values(),
+                               runtime.application.stub)

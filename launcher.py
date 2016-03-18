@@ -2,6 +2,7 @@ import core.storage
 import core.component
 import core.application
 import core.communication
+import validators.imagediff
 
 
 class Runtime(object):
@@ -11,6 +12,7 @@ class Runtime(object):
         self.storage = core.storage.Storage()
         self.communication_cls = core.communication.Communication
         self.setup_environment()
+        self.validators = [validators.imagediff.ImageDiff()]
 
     def setup_environment(self):
         suts = []
