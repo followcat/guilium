@@ -1,14 +1,15 @@
+import core.storage
 import core.component
 import core.application
 import core.communication
-
 
 
 class Runtime(object):
     """"""
     def __init__(self, config):
         self.config = config
-        self.communication = core.communication.Communication
+        self.storage = core.storage.Storage()
+        self.communication_cls = core.communication.Communication
         self.setup_environment()
 
     def setup_environment(self):
@@ -19,6 +20,10 @@ class Runtime(object):
             suts.append(core.component.Component(sut, engines))
         stub = core.component.Component(self.config.stub, engines)
         self.application = core.application.Application(suts, stub)
+        self.communication = self.communication_cls(self.application.sut,
+                                                    self.application.stub,
+                                                    self.storage)
 
     def start_test(self):
         self.application.start()
+        self.communication.start()

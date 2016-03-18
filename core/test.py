@@ -4,4 +4,4 @@ class Test:
 
     def __call__(self, runtime, result=None, *args):
         """"""
-        runtime.application.stub.process(self.test_url)
+        runtime.communication.simulate(self.test_url)

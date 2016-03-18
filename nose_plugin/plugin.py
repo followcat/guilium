@@ -18,7 +18,7 @@ import nose.config
 import nose.failure
 import nose.plugins
 
-import core.runtime
+import launcher
 import core.test
 import nose_plugin
 import nose_plugin.suite
@@ -123,7 +123,7 @@ class TestRunner(nose.core.TextTestRunner):
         result = self._makeResult()
         start = time.time()
 
-        runtime = core.runtime.Runtime(self.config.options)
+        runtime = launcher.Runtime(self.config.options)
         runtime.setup_environment()
         runtime.start_test()
         setattr(test.config, 'runtime', runtime)
