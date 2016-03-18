@@ -8,3 +8,8 @@ class Component(checkmate.checkmate.core.component.Component):
         """"""
         for e in self.engine:
             e.start()
+
+    def process(self, url):
+        """"""
+        for e in self.engine:
+            e.process(url)

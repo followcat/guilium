@@ -5,9 +5,12 @@ class Application(checkmate.checkmate.core.application.Application):
     """"""
     def __init__(self, suts, stub):
         self.components = {}
+        self.sut = {}
         for sut in suts:
             self.components[sut.name] = sut
-        self.components['stub'] = stub
+            self.sut[sut.name] = sut
+        self.components[stub.name] = stub
+        self.stub = stub
 
     def start(self):
         """"""

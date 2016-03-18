@@ -5,6 +5,7 @@ import subprocess
 
 import appium.webdriver
 
+import engines.image
 
 class BaseEngine(object):
     """"""
@@ -20,8 +21,10 @@ class BaseEngine(object):
 
     def start(self):
         self.port = self.pickfreeport()
+        self.chromedriver_port = self.pickfreeport()
         command = ['appium', '--command-timeout=300',
-                   '--avd=%s'%self.name, '-p', str(self.port)]
+                   '--avd=%s'%self.name, '-p', str(self.port),
+                   '--chromedriver-port', str(self.chromedriver_port)]
         self.p = subprocess.Popen(command,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
@@ -41,6 +44,12 @@ class BaseEngine(object):
         time.sleep(0.5)
         self.driver.tap([(240, 400)])
         time.sleep(0.5)
+
+    def process(self, url):
+        self.driver.switch_to.context('WEBVIEW_1')
+        self.driver.get(url)
+        image = engines.image.webviewfullscreen(self.driver)
+        return image
 
     def pickfreeport(self):
         with self.get_assign_port_lock:

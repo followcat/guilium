@@ -28,11 +28,11 @@ class TestCase(nose.case.Test):
         plug_test = self.config.plugins.prepareTestCase(self)
         if plug_test is not None:
             test = plug_test
-        if isinstance(test, core.Test):
+        if isinstance(test, core.test.Test):
             config_as_dict = self.config.todict()
             result.startTest(self)
             try:
-                config_as_dict['runtime'].execute(test, result)
+                test(config_as_dict['runtime'], result)
             except nose.plugins.skip.SkipTest as e:
                 result.addSkip(self, Exception(str(e)))
             except:
@@ -63,7 +63,7 @@ class FunctionTestCase(nose.case.FunctionTestCase):
                     str(self) + '(' + str(_test.exchanges[0].value) +', )')
                 _FunctionTestCase(self.proxyResult)
         else:
-            runtime.execute(self.test)
+            self.test(runtime)
 
     def shortDescription(self):
         if hasattr(self.test, 'description'):

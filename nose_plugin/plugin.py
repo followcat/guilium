@@ -64,9 +64,7 @@ class Guilium(nose.plugins.Plugin):
         
     def wantFunction(self, function):
         """Do not select TestLogProcedureGenerator"""
-        if self.runlog:
-            return "TestLog" in function.__name__
-        return self.runlog or "TestProcedure" in function.__name__ 
+        return "Test" in function.__name__ 
 
     def makeTest(self, obj, parent=None):
         """"""
@@ -126,6 +124,7 @@ class TestRunner(nose.core.TextTestRunner):
         start = time.time()
 
         runtime = core.runtime.Runtime(self.config.options)
+        runtime.setup_environment()
         runtime.start_test()
         setattr(test.config, 'runtime', runtime)
         test(result)

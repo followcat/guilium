@@ -14,4 +14,4 @@ class Runtime(object):
         engines = []
         for sut in self.config.sut:
             components[sut] = core.component.Component(sut, engines)
-        self.application = core.application.application(components, self.communication)
+        self.application = core.application.application(components, self.config.stub)
