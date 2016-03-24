@@ -70,7 +70,7 @@ def webviewfullscreen(driver):
     """"""
     cimgs = []
     screenshots = []
-    driver.switch_to.context('WEBVIEW_1')
+    driver.switch_to.context('CHROMIUM')
     driver.execute_script('window.scrollTo(0, 0);')
     time.sleep(1)
 
@@ -81,7 +81,7 @@ def webviewfullscreen(driver):
     webview_bound = bounds(webview.get('bounds'))
     webview_location = location(webview_bound)
 
-    driver.switch_to.context('WEBVIEW_1')
+    driver.switch_to.context('CHROMIUM')
     total_hegiht = driver.execute_script('return document.body.scrollHeight')
     screen_height = driver.execute_script('return window.screen.height')
 
@@ -91,7 +91,7 @@ def webviewfullscreen(driver):
     count = 0
     while True:
         last_moved = moved
-        driver.switch_to.context('WEBVIEW_1')
+        driver.switch_to.context('CHROMIUM')
         scrolled = driver.execute_script('return document.body.scrollTop')
         driver.execute_script('window.scrollTo(0, %d);' % (count*scroll_height))
         moved = driver.execute_script('return document.body.scrollTop') - scrolled
