@@ -46,3 +46,5 @@ class Component(checkmate.checkmate.core.component.Component, threading.Thread):
 
     def stop(self):
         self.stopcondition = True
+        for e in self.engine:
+            e.stop()

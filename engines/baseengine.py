@@ -32,8 +32,12 @@ class BaseEngine(object):
             outstr = self.p.stdout.readline()
             if "Appium REST http interface listener started on" in outstr:
                 break
-        self.driver = appium.webdriver.Remote('http://localhost:%s/wd/hub' % self.port,
-                                              self.desired_caps)
+        try:
+            self.driver = appium.webdriver.Remote('http://localhost:%s/wd/hub'
+                             % self.port, self.desired_caps)
+        except Exception as e:
+            self.p.terminate()
+            raise e
         self.initaction()
 
     def initaction(self):
@@ -58,3 +62,7 @@ class BaseEngine(object):
             addr, port = _socket.getsockname()
             _socket.close()
         return port
+
+    def stop(self):
+        self.driver.quit()
+        self.p.terminate()
