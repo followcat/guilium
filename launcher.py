@@ -17,10 +17,11 @@ class Runtime(object):
     def setup_environment(self):
         suts = []
         import engines.baseengine
-        engines = [engines.baseengine.BaseEngine]
         for sut in self.config.sut:
-            suts.append(core.component.Component(sut, engines))
-        stub = core.component.Component(self.config.stub, engines)
+            sut_engines = [engines.baseengine.BaseEngine(name=sut)]
+            suts.append(core.component.Component(sut, sut_engines))
+        stub_engines = [engines.baseengine.BaseEngine(name=self.config.stub)]
+        stub = core.component.Component(self.config.stub, stub_engines)
         self.application = core.application.Application(suts, stub)
         self.communication = self.communication_cls(self.application.sut,
                                                     self.application.stub,
