@@ -26,12 +26,5 @@ class Communication(checkmate.checkmate.core.communication.Communication, thread
                 self.storage.set(name, info)
             time.sleep(0.01)
 
-    def simulate(self, url):
-        self.stub.process(url)
-        info = self.stub.get()
-        self.storage.set(self.stub.name, info)
-        for sut in self.suts.values():
-            sut.push(url)
-
     def stop(self):
         self.stopcondition = True

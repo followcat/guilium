@@ -1,3 +1,5 @@
+import time 
+
 import core.storage
 import core.component
 import core.application
@@ -37,3 +39,23 @@ class Runtime(object):
         for sut in self.suts.values():
             sut.stop()
         self.communication.stop()
+
+    def execute(self, test):
+        self.stub.process(test.test_url)
+        info = self.stub.get()
+        self.storage.set(self.stub.name, info)
+        for sut in self.suts.values():
+            sut.push(test.test_url)
+        while True:
+            time.sleep(0.1)
+            stack = self.storage.get()
+            for sut in self.suts.values():
+                if sut.name in stack and test.test_url in stack[sut.name]:
+                    continue
+                else:
+                    break
+            else:
+                break
+        for validator in self.validators:
+            validator.validate(test.test_url, self.storage,
+                self.suts.values(), self.stub)
