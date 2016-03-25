@@ -21,18 +21,16 @@ class Communication(checkmate.checkmate.core.communication.Communication, thread
         while True:
             if self.stopcondition:
                 break
-            for name in self.suts:
-                sut = self.suts[name]
+            for name, sut in self.suts.items():
                 info = sut.get()
-                self.storage.set(sut.name, info)
+                self.storage.set(name, info)
             time.sleep(0.01)
 
     def simulate(self, url):
         self.stub.process(url)
         info = self.stub.get()
         self.storage.set(self.stub.name, info)
-        for name in self.suts:
-            sut = self.suts[name]
+        for sut in self.suts.values():
             sut.push(url)
 
     def stop(self):

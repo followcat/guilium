@@ -11,7 +11,7 @@ class Test:
         while True:
             time.sleep(0.1)
             stack = runtime.storage.get()
-            for sut in runtime.application.sut.values():
+            for sut in runtime.suts.values():
                 if sut.name in stack and self.test_url in stack[sut.name]:
                     continue
                 else:
@@ -20,5 +20,5 @@ class Test:
                 break
         for validator in runtime.validators:
             validator.validate(self.test_url, runtime.storage,
-                               runtime.application.sut.values(),
-                               runtime.application.stub)
+                               runtime.suts.values(),
+                               runtime.stub)
