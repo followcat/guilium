@@ -41,16 +41,14 @@ class Runtime(object):
         self.communication.stop()
 
     def execute(self, test):
-        self.stub.process(test.test_url)
-        info = self.stub.get()
-        self.storage.set(self.stub.name, info)
-        for sut in self.suts.values():
-            sut.push(test.test_url)
+        stack = self.storage.get()
+        for component in [self.stub] + self.suts.values():
+            component.push(test.test_url)
         while True:
             time.sleep(0.1)
-            stack = self.storage.get()
-            for sut in self.suts.values():
-                if sut.name in stack and test.test_url in stack[sut.name]:
+            for component in [self.stub] + self.suts.values():
+                if component.name in stack and \
+                    test.test_url in stack[component.name]:
                     continue
                 else:
                     break

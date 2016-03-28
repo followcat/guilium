@@ -21,9 +21,9 @@ class Communication(checkmate.checkmate.core.communication.Communication, thread
         while True:
             if self.stopcondition:
                 break
-            for name, sut in self.suts.items():
-                info = sut.get()
-                self.storage.set(name, info)
+            for component in [self.stub] + self.suts.values():
+                info = component.get()
+                self.storage.set(component.name, info)
             time.sleep(0.01)
 
     def stop(self):
