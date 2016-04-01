@@ -11,7 +11,7 @@ install python(2.7.9) and pip(8.0.3):
 ```
 install nodejs(v4.3.1) and npm(2.14.12)
 ```
-    npm install -g appium
+    npm install -g appium@1.5.1
 ```
 ###  Install checkmate
 Install checkmate dependency here:
