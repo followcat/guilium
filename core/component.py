@@ -10,7 +10,6 @@ class Component(checkmate.core.component.Component, threading.Thread):
         """"""
         threading.Thread.__init__(self)
         checkmate.core.component.Component.__init__(self, name, engine)
-        self.engine = [e(self.name) for e in engine]
         self.jobs = []
         self.stack = {}
         self.stopcondition = False
