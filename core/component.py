@@ -16,11 +16,11 @@ class Component(checkmate.checkmate.core.component.Component, threading.Thread):
 
     def start(self):
         """"""
+        for e in self.engine:
+            e.start()
         threading.Thread.start(self)
 
     def run(self):
-        for e in self.engine:
-            e.start()
         while True:
             if self.stopcondition:
                 break
