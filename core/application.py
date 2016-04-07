@@ -1,7 +1,7 @@
-import checkmate.checkmate.core.application
+import checkmate.core.application
 
 
-class Application(checkmate.checkmate.core.application.Application):
+class Application(checkmate.core.application.Application):
     """"""
     def __init__(self, suts, stub):
         self.components = {}
