@@ -21,19 +21,10 @@ class Communication(checkmate.core.communication.Communication, threading.Thread
         while True:
             if self.stopcondition:
                 break
-            for name in self.suts:
-                sut = self.suts[name]
-                info = sut.get()
-                self.storage.set(sut.name, info)
+            for component in [self.stub] + self.suts.values():
+                info = component.get()
+                self.storage.set(component.name, info)
             time.sleep(0.01)
-
-    def simulate(self, url):
-        self.stub.process(url)
-        info = self.stub.get()
-        self.storage.set(self.stub.name, info)
-        for name in self.suts:
-            sut = self.suts[name]
-            sut.push(url)
 
     def stop(self):
         self.stopcondition = True

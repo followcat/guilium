@@ -10,7 +10,7 @@ import engines.image
 class BaseEngine(object):
     """"""
     desired_caps = {
-        'app': 'Browser',
+        'browserName': 'Browser',
         'platformName': 'Android',
         'platformVersion': '4.4',
         'deviceName': 'Android Emulator'
@@ -23,7 +23,8 @@ class BaseEngine(object):
         self.port = self.pickfreeport()
         self.chromedriver_port = self.pickfreeport()
         command = ['appium', '--command-timeout=300',
-                   '--avd=%s'%self.name, '-p', str(self.port),
+                   '--default-capabilities={"avd":"%s"}'%self.name,
+                   '-p', str(self.port),
                    '--chromedriver-port', str(self.chromedriver_port)]
         self.p = subprocess.Popen(command,
                              stdout=subprocess.PIPE,
@@ -32,8 +33,12 @@ class BaseEngine(object):
             outstr = self.p.stdout.readline()
             if "Appium REST http interface listener started on" in outstr:
                 break
-        self.driver = appium.webdriver.Remote('http://localhost:%s/wd/hub' % self.port,
-                                              self.desired_caps)
+        try:
+            self.driver = appium.webdriver.Remote('http://localhost:%s/wd/hub'
+                             % self.port, self.desired_caps)
+        except Exception as e:
+            self.p.terminate()
+            raise e
         self.initaction()
 
     def initaction(self):
@@ -46,7 +51,7 @@ class BaseEngine(object):
         time.sleep(0.5)
 
     def process(self, url):
-        self.driver.switch_to.context('WEBVIEW_1')
+        self.driver.switch_to.context('CHROMIUM')
         self.driver.get(url)
         image = engines.image.webviewfullscreen(self.driver)
         return image
@@ -58,3 +63,7 @@ class BaseEngine(object):
             addr, port = _socket.getsockname()
             _socket.close()
         return port
+
+    def stop(self):
+        self.driver.quit()
+        self.p.terminate()
