@@ -1,14 +1,14 @@
 import time
 import threading
 
-import checkmate.checkmate.core.communication
+import checkmate.core.communication
 
 
-class Communication(checkmate.checkmate.core.communication.Communication, threading.Thread):
+class Communication(checkmate.core.communication.Communication, threading.Thread):
     """"""
     def __init__(self, suts, stub, storage):
         threading.Thread.__init__(self)
-        checkmate.checkmate.core.communication.Communication.__init__(self)
+        checkmate.core.communication.Communication.__init__(self)
         self.suts = suts
         self.stub = stub
         self.storage = storage

@@ -1,15 +1,15 @@
 import time
 import threading
 
-import checkmate.checkmate.core.component
+import checkmate.core.component
 
 
-class Component(checkmate.checkmate.core.component.Component, threading.Thread):
+class Component(checkmate.core.component.Component, threading.Thread):
     """"""
     def __init__(self, name, engine):
         """"""
         threading.Thread.__init__(self)
-        checkmate.checkmate.core.component.Component.__init__(self, name, engine)
+        checkmate.core.component.Component.__init__(self, name, engine)
         self.jobs = []
         self.stack = {}
         self.stopcondition = False

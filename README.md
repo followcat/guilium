@@ -9,10 +9,19 @@ install python(2.7.9) and pip(8.0.3):
 ```
     pip install -r requires.txt
 ```
+
+install checkmate core:
+```
+    git clone https://github.com/followcat/checkmate.git
+    git checkout dev
+    python setup.py install
+```
+
 install nodejs(v4.3.1) and npm(2.14.12)
 ```
     npm install -g appium@1.5.1
 ```
+
 ###  Install checkmate
 Install checkmate dependency here:
     https://github.com/followcat/checkmate/blob/master/knowledge/training/setup_environment.rst
