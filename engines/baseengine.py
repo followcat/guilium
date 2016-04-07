@@ -21,10 +21,12 @@ class BaseEngine(object):
 
     def start(self):
         self.port = self.pickfreeport()
+        self.bootstrap_port = self.pickfreeport()
         self.chromedriver_port = self.pickfreeport()
         command = ['appium', '--command-timeout=300',
                    '--default-capabilities={"avd":"%s"}'%self.name,
                    '-p', str(self.port),
+                   '-bp', str(self.bootstrap_port),
                    '--chromedriver-port', str(self.chromedriver_port)]
         self.p = subprocess.Popen(command,
                              stdout=subprocess.PIPE,
