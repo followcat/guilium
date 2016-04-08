@@ -3,6 +3,7 @@ import threading
 import subprocess
 
 import appium.webdriver
+import selenium.webdriver
 
 
 get_assign_port_lock = threading.Lock()
@@ -15,12 +16,12 @@ def pickfreeport():
         _socket.close()
     return port
 
-def start_appium_in_subprocess(avdname=None, udid=None, port=None):
+def start_appium_in_subprocess(desired_caps=None, port=None):
         """
             >>> import time
             >>> import _appium
-            >>> p, port = _appium.start_appium_in_subprocess(
-            ...             avdname='avd5.1_new')
+            >>> desired_caps = {'avd': 'avd5.1_new'}
+            >>> p, port = _appium.start_appium_in_subprocess(desired_caps)
             >>> time.sleep(5)
             >>> p.terminate()
             >>> s = p.stdout.readlines()
@@ -31,18 +32,21 @@ def start_appium_in_subprocess(avdname=None, udid=None, port=None):
             port = pickfreeport()
         bootstrap_port = pickfreeport()
         chromedriver_port = pickfreeport()
-        default_caps = ''
-        if udid is not None:
-            default_caps = '--default-capabilities={"udid":"%s"}'% udid
-        elif avdname is not None:
-            default_caps = '--default-capabilities={"avd":"%s"}'% avdname
+        start_caps = ''
+        if desired_caps is not None:
+            if 'udid' in desired_caps:
+                start_caps = '--default-capabilities={"udid":"%s"}' \
+                                % desired_caps['udid']
+            elif 'avd' in desired_caps:
+                start_caps = '--default-capabilities={"avd":"%s"}' \
+                                % desired_caps['avd']
         command = ['appium',
                    '--command-timeout=300',
                    '-p', str(port),
                    '-bp', str(bootstrap_port),
                    '--chromedriver-port', str(chromedriver_port)]
-        if len(default_caps) > 0:
-            command.append(default_caps)
+        if len(start_caps) > 0:
+            command.append(start_caps)
         proc = subprocess.Popen(command,
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         return proc, port

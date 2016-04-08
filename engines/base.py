@@ -4,17 +4,18 @@ import _webdriver
 
 class BaseEngine(object):
     """"""
-    desired_caps = {
-        'browserName': 'Browser',
-        'platformName': 'Android',
-        'platformVersion': '4.4',
-        'deviceName': 'Android Emulator'
-    }
     def __init__(self, name):
         self.name = name
+        self.desired_caps = {
+            'browserName': 'Browser',
+            'platformName': 'Android',
+            'platformVersion': '4.4',
+            'deviceName': 'Android Emulator',
+            'avd': self.name
+        }
 
     def start(self):
-        self.p, port = _webdriver.start_appium_in_subprocess(avdname=self.name)
+        self.p, port = _webdriver.start_appium_in_subprocess(self.desired_caps)
 
         while(True):
             outstr = self.p.stdout.readline()
