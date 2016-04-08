@@ -1,7 +1,6 @@
 import time
 
 import _webdriver
-import engines.image
 
 class BaseEngine(object):
     """"""
@@ -39,12 +38,6 @@ class BaseEngine(object):
         time.sleep(0.5)
         self.driver.tap([(240, 400)])
         time.sleep(0.5)
-
-    def process(self, url):
-        self.driver.switch_to.context('CHROMIUM')
-        self.driver.get(url)
-        image = engines.image.webviewfullscreen(self.driver)
-        return image
 
     def stop(self):
         self.driver.quit()

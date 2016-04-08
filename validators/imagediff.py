@@ -4,10 +4,6 @@ from PIL import Image
 from PIL import ImageChops
 
 
-class TestError(RuntimeError):
-    """"""
-
-
 class ImageDiff(object):
     """"""
     def rmsdiff_2011(self, im1, im2):
