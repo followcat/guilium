@@ -1,7 +1,7 @@
-class BaseEngine(object):
+class BaseMata(object):
     """"""
-    def __init__(self, name):
-        self.name = name
+    def __init__(self):
+        self.name = self.__class__.__name__
 
     def process(self):
         """"""
