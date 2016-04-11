@@ -1,6 +1,6 @@
 import time
 
-import _webdriver
+import engine.communication._webdriver
 
 
 class Communication(object):
@@ -16,8 +16,8 @@ class Communication(object):
         }
 
     def start(self):
-        self.p, port = _webdriver.start_appium_in_subprocess(self.desired_caps)
-
+        self.p, port = engine.communication._webdriver.start_appium_in_subprocess(
+            self.desired_caps)
         while(True):
             outstr = self.p.stdout.readline()
             if "Appium REST http interface listener started on" in outstr:
@@ -25,8 +25,8 @@ class Communication(object):
 
         command_executor = 'http://localhost:%s/wd/hub'% port
         try:
-            self.driver = \
-                _webdriver.get_webdriver(command_executor, self.desired_caps)
+            self.driver = engine.communication._webdriver.get_webdriver(
+                command_executor, self.desired_caps)
         except Exception as e:
             self.p.terminate()
             raise e
