@@ -1,4 +1,3 @@
-
 import re
 import time
 import math
@@ -99,8 +98,6 @@ def webviewfullscreen(driver):
         png = driver.get_screenshot_as_png()
         screenshots.append(png)
         count += 1
-        if count == 2:
-            break
         if last_moved > moved or (last_moved > 0 and moved == 0):
             break
     the_last_moved = int(moved/scale)
