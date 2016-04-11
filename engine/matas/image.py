@@ -6,13 +6,13 @@ import xml.etree.ElementTree as ET
 
 import Image
 
-import engines.base
+import engine.matas.base
 
 
 def bounds(points_str):
     """
-        >>> import engines.image
-        >>> engines.image.bounds('[0,0][480,800]')
+        >>> import engine.matas.image
+        >>> engine.matas.image.bounds('[0,0][480,800]')
         [0, 0, 480, 800]
     """
     return [int(each) for each in re.findall(r'[\d]+', points_str)]
@@ -20,9 +20,9 @@ def bounds(points_str):
 
 def size(bound):
     """
-        >>> import engines.image
+        >>> import engine.matas.image
         >>> bound = [0, 0, 480, 800]
-        >>> size = engines.image.size(bound)
+        >>> size = engine.matas.image.size(bound)
         >>> size['width'], size['height']
         (480, 800)
     """
@@ -31,16 +31,16 @@ def size(bound):
 
 def location(bound):
     """
-        >>> import engines.image
+        >>> import engine.matas.image
         >>> bound = [0, 0, 480, 800]
-        >>> location = engines.image.location(bound)
+        >>> location = engine.matas.image.location(bound)
         >>> location['x'], location['y']
         (0, 0)
     """
     return {'x':bound[0], 'y':bound[1]}
 
 
-class ImageEngine(engines.base.BaseEngine):
+class ImageEngine(engine.matas.base.BaseEngine):
 
     def get_contain(self):
         self.driver.switch_to.context('NATIVE_APP')

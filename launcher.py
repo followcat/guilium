@@ -19,11 +19,11 @@ class Runtime(object):
         self.validators = [validators.imagediff.ImageDiff()]
 
     def setup_environment(self):
-        import engines.image
+        import engine.matas.image
         for sut in self.config.sut:
-            sut_engines = [engines.image.ImageEngine(name=sut)]
+            sut_engines = [engine.matas.image.ImageEngine(name=sut)]
             self.suts[sut] = core.component.Component(sut, sut_engines)
-        stub_engines = [engines.image.ImageEngine(name=self.config.stub)]
+        stub_engines = [engine.matas.image.ImageEngine(name=self.config.stub)]
         self.stub = core.component.Component(self.config.stub, stub_engines)
         self.communication = \
             self.communication_cls(self.suts, self.stub, self.storage)
