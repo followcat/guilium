@@ -16,8 +16,7 @@ class Component(checkmate.core.component.Component, threading.Thread):
 
     def start(self):
         """"""
-        for e in self.engine:
-            e.start()
+        self.engine.start()
         threading.Thread.start(self)
 
     def run(self):
@@ -35,10 +34,7 @@ class Component(checkmate.core.component.Component, threading.Thread):
 
     def process(self, url):
         """"""
-        results = []
-        for e in self.engine:
-            result = e.process(url)
-            results.append(result)
+        results = self.engine.process(url)
         self.stack[url] = results
 
     def get(self):
@@ -46,5 +42,4 @@ class Component(checkmate.core.component.Component, threading.Thread):
 
     def stop(self):
         self.stopcondition = True
-        for e in self.engine:
-            e.stop()
+        self.engine.stop()

@@ -42,13 +42,13 @@ def location(bound):
 
 class ImageEngine(engine.matas.base.BaseEngine):
 
-    def get_contain(self):
-        self.driver.switch_to.context('NATIVE_APP')
-        xmlsrc = self.driver.page_source
+    def get_contain(self, driver):
+        driver.switch_to.context('NATIVE_APP')
+        xmlsrc = driver.page_source
         xmlobj = ET.fromstring(xmlsrc.encode('utf-8'))[0]
         return xmlobj
 
-    def get_webview(self):
+    def get_webview(self, driver):
         """"""
         def area(elem):
             bound = bounds(elem.get('bounds'))
@@ -62,30 +62,30 @@ class ImageEngine(engine.matas.base.BaseEngine):
             if xmlobj.tag == 'android.view.View':
                 save.append(xmlobj)
             return save
-        self.driver.switch_to.context('NATIVE_APP')
-        xmlsrc = self.driver.page_source
+        driver.switch_to.context('NATIVE_APP')
+        xmlsrc = driver.page_source
         xmlobj = ET.fromstring(xmlsrc.encode('utf-8'))
         results = sorted(allview(xmlobj), key=lambda each: area(each), reverse=True)
         return results[0]
 
-    def webviewfullscreen(self):
+    def webviewfullscreen(self, driver):
         """"""
         cimgs = []
         screenshots = []
-        self.driver.switch_to.context('CHROMIUM')
-        self.driver.execute_script('window.scrollTo(0, 0);')
+        driver.switch_to.context('CHROMIUM')
+        driver.execute_script('window.scrollTo(0, 0);')
         time.sleep(1)
 
-        contain = self.get_contain()
+        contain = self.get_contain(driver)
         contain_bound = bounds(contain.get('bounds'))
         contain_size = size(contain_bound)
-        webview = self.get_webview()
+        webview = self.get_webview(driver)
         webview_bound = bounds(webview.get('bounds'))
         webview_location = location(webview_bound)
 
-        self.driver.switch_to.context('CHROMIUM')
-        total_hegiht = self.driver.execute_script('return document.body.scrollHeight')
-        screen_height = self.driver.execute_script('return window.screen.height')
+        driver.switch_to.context('CHROMIUM')
+        total_hegiht = driver.execute_script('return document.body.scrollHeight')
+        screen_height = driver.execute_script('return window.screen.height')
 
         scale = float(screen_height)/contain_size['height']
         scroll_height = math.ceil((contain_size['height']-webview_location['y'])*scale)
@@ -93,13 +93,13 @@ class ImageEngine(engine.matas.base.BaseEngine):
         count = 0
         while True:
             last_moved = moved
-            self.driver.switch_to.context('CHROMIUM')
-            scrolled = self.driver.execute_script('return document.body.scrollTop')
-            self.driver.execute_script('window.scrollTo(0, %d);' % (count*scroll_height))
-            moved = self.driver.execute_script('return document.body.scrollTop') - scrolled
+            driver.switch_to.context('CHROMIUM')
+            scrolled = driver.execute_script('return document.body.scrollTop')
+            driver.execute_script('window.scrollTo(0, %d);' % (count*scroll_height))
+            moved = driver.execute_script('return document.body.scrollTop') - scrolled
             time.sleep(1)
-            self.driver.switch_to.context('NATIVE_APP')
-            png = self.driver.get_screenshot_as_png()
+            driver.switch_to.context('NATIVE_APP')
+            png = driver.get_screenshot_as_png()
             screenshots.append(png)
             count += 1
             if count == 2:
@@ -125,8 +125,8 @@ class ImageEngine(engine.matas.base.BaseEngine):
             paste_height += each.size[1]
         return result_image
 
-    def process(self, url):
-        self.driver.switch_to.context('CHROMIUM')
-        self.driver.get(url)
-        image = self.webviewfullscreen()
+    def process(self, url, driver):
+        driver.switch_to.context('CHROMIUM')
+        driver.get(url)
+        image = self.webviewfullscreen(driver)
         return image
