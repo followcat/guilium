@@ -1,11 +1,13 @@
-import engine.communication.base
+import engine.matas.dom
 import engine.matas.image
+import engine.communication.base
 
 
 class Engine(object):
     def __init__(self, name):
         self.comm = engine.communication.base.Communication(name)
-        self.matas = [engine.matas.image.ImageMata()]
+        self.matas = [engine.matas.image.ImageMata(),
+                      engine.matas.dom.DomMata()]
 
     def start(self):
         self.comm.start()
@@ -14,10 +16,10 @@ class Engine(object):
         self.comm.stop()
 
     def process(self, url):
-        results = []
-        for each in self.matas:
-            result = each.process(url, self.comm.driver)
-            results.append(result)
+        results = {}
+        for mata in self.matas:
+            result = mata.process(url, self.comm.driver)
+            results[mata.name] = result
         return results
 
 

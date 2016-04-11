@@ -5,7 +5,8 @@ import core.storage
 import core.component
 import core.application
 import core.communication
-import validators.imagediff
+import validators.dom
+import validators.image
 
 
 class Runtime(object):
@@ -17,7 +18,8 @@ class Runtime(object):
         self.storage = core.storage.Storage()
         self.communication_cls = core.communication.Communication
         self.setup_environment()
-        self.validators = [validators.imagediff.ImageDiff()]
+        self.validators = [validators.image.ImageValidator('ImageMata'),
+                           validators.dom.DomValidator('DomMata')]
 
     def setup_environment(self):
         for sut in self.config.sut:

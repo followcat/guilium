@@ -3,9 +3,12 @@ import math
 from PIL import Image
 from PIL import ImageChops
 
+import validators.base
 
-class ImageDiff(object):
+
+class ImageValidator(validators.base.BaseValidator):
     """"""
+
     def rmsdiff_2011(self, im1, im2):
         "Calculate the root-mean-square difference between two images"
         diff = ImageChops.difference(im1, im2)
@@ -60,9 +63,9 @@ class ImageDiff(object):
 
     def validate(self, url, storage, suts, stub, color=(0,255,0)):
         stack = storage.get()
-        stub_img = stack[stub.name][url][0]
+        stub_img = stack[stub.name][url][self.mataname]
         for sut in suts:
-            sut_img = stack[sut.name][url][0]
+            sut_img = stack[sut.name][url][self.mataname]
             self.image_diff(stub_img, sut_img,
                             '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png',
                             color)
