@@ -1,0 +1,14 @@
+{
+    "sut": [ {
+        "engine": {
+            "platform": "mobile"
+        },
+        "name": "avd5.1_new"
+    }],
+    "stub": {
+        "engine": {
+            "platform": "mobile"
+        },
+        "name": "avd5.1"
+    }
+}
