@@ -1,11 +1,12 @@
 import engine.matas.dom
 import engine.matas.image
 import engine.communication.base
+import engine.communication._webdriver
 
 
 class Engine(object):
     def __init__(self, name):
-        self.comm = engine.communication.base.Communication(name)
+        self.comm = engine.communication._webdriver.Communication(name)
         self.matas = [engine.matas.image.ImageMata(),
                       engine.matas.dom.DomMata()]
 

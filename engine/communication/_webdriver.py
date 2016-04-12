@@ -1,9 +1,11 @@
+import time
 import socket 
 import threading
 import subprocess
 
 import appium.webdriver
-import selenium.webdriver
+
+import engine.communication.base
 
 
 get_assign_port_lock = threading.Lock()
@@ -19,9 +21,9 @@ def pickfreeport():
 def start_appium_in_subprocess(desired_caps=None, port=None):
         """
             >>> import time
-            >>> import _appium
+            >>> import engine.communication._webdriver as wd
             >>> desired_caps = {'avd': 'avd5.1_new'}
-            >>> p, port = _appium.start_appium_in_subprocess(desired_caps)
+            >>> p, port = wd.start_appium_in_subprocess(desired_caps)
             >>> time.sleep(5)
             >>> p.terminate()
             >>> s = p.stdout.readlines()
@@ -51,5 +53,46 @@ def start_appium_in_subprocess(desired_caps=None, port=None):
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         return proc, port
 
-def get_webdriver(command_executor, desired_capabilities=None):
-    return appium.webdriver.Remote(command_executor, desired_capabilities)
+
+class Communication(engine.communication.base.Communication):
+
+    def __init__(self, name):
+        super(Communication, self).__init__(name)
+        self.desired_caps = {
+            'browserName': 'Browser',
+            'platformName': 'Android',
+            'platformVersion': '4.4',
+            'deviceName': 'Android Emulator',
+            'avd': self.name
+        }
+
+    def start(self):
+        self.server, server_port = start_appium_in_subprocess(
+            self.desired_caps)
+        while(True):
+            outstr = self.server.stdout.readline()
+            if "Appium REST http interface listener started on" in outstr:
+                break
+
+        command_executor = 'http://localhost:%s/wd/hub'% server_port
+        try:
+            self.driver = \
+                appium.webdriver.Remote(command_executor, self.desired_caps)
+        except Exception as e:
+            self.p.terminate()
+            raise e
+        self.initaction()
+
+    def initaction(self):
+        self.driver.switch_to.context('NATIVE_APP')
+        self.driver.tap([(240, 68)])
+        time.sleep(0.5)
+        self.driver.tap([(20, 68)])
+        time.sleep(0.5)
+        self.driver.tap([(240, 400)])
+        time.sleep(0.5)
+
+    def stop(self):
+        self.driver.quit()
+        self.server.terminate()
+
