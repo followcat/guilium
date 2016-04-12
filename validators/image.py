@@ -4,6 +4,7 @@ from PIL import Image
 from PIL import ImageChops
 
 import validators.base
+import validators.error
 
 
 class ImageValidator(validators.base.BaseValidator):
@@ -32,9 +33,11 @@ class ImageValidator(validators.base.BaseValidator):
         pix2 = im2.load()
 
         if im1.mode != im2.mode:
-            raise TestError('Different pixel modes between im1 and im2')
+            raise validators.error.TestError("Different pixel modes between \
+                    im1 and im2")
         if im1.size != im2.size:
-            raise TestError('Different dimensions between im1 (%r) and im2 (%r)' % (im1.size, im2.size))
+            raise validators.error.TestError("Different dimensions between \
+                    im1 (%r) and im2 (%r)" % (im1.size, im2.size))
 
         mode = im1.mode
 
