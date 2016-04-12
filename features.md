@@ -32,3 +32,12 @@
 
 ### Mar 28, 2016
     Start and run engines of stub and sut in thread(Can run in the same time)
+
+### Apr 11, 2016
+    Engine include communication and matas.
+    Add dom mata and it's validator.
+
+### Apr 12, 2016
+    Add desktop communication and it's matas.
+    Add config loader.
+    Split dom and image mata to destop and webview version.
