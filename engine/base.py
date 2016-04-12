@@ -1,16 +1,15 @@
 import engine.matas.dom
 import engine.matas.image
-import engine.communication.base
-import engine.communication._mobile
-import engine.communication._desktop
+import engine.connector._mobile
+import engine.connector._desktop
 
 
 class Engine(object):
     def __init__(self, name, config):
         if config['platform'] == 'mobile':
-            self.comm = engine.communication._mobile.Communication(name)
+            self.comm = engine.connector._mobile.MobileConnector(name)
         elif config['platform'] == 'desktop':
-            self.comm = engine.communication._desktop.Communication(name)
+            self.comm = engine.connector._desktop.DesktopConnector(name)
         self.matas = [engine.matas.image.WebviewImageMata(),
                       engine.matas.dom.WebviewDomMata()]
 

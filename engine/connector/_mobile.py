@@ -5,7 +5,7 @@ import subprocess
 
 import appium.webdriver
 
-import engine.communication.base
+import engine.connector.base
 
 
 get_assign_port_lock = threading.Lock()
@@ -21,7 +21,7 @@ def pickfreeport():
 def start_appium_in_subprocess(desired_caps=None, port=None):
         """
             >>> import time
-            >>> import engine.communication._mobile as mb
+            >>> import engine.connector._mobile as mb
             >>> desired_caps = {'avd': 'avd5.1_new'}
             >>> p, port = mb.start_appium_in_subprocess(desired_caps)
             >>> time.sleep(5)
@@ -54,10 +54,10 @@ def start_appium_in_subprocess(desired_caps=None, port=None):
         return proc, port
 
 
-class Communication(engine.communication.base.Communication):
+class MobileConnector(engine.connector.base.Connector):
 
     def __init__(self, name):
-        super(Communication, self).__init__(name)
+        super(MobileConnector, self).__init__(name)
         self.desired_caps = {
             'browserName': 'Browser',
             'platformName': 'Android',

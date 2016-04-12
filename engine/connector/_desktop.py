@@ -1,13 +1,13 @@
 import selenium.webdriver
 import selenium.webdriver.chrome.options
 
-import engine.communication.base
+import engine.connector.base
 
 
-class Communication(engine.communication.base.Communication):
+class DesktopConnector(engine.connector.base.Connector):
 
     def __init__(self, name):
-        super(Communication, self).__init__(name)
+        super(DesktopConnector, self).__init__(name)
         mobile_emulation = { 
             "deviceMetrics": {
                 "width": 480,
