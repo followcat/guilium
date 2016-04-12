@@ -7,8 +7,8 @@ import engine.communication._mobile
 class Engine(object):
     def __init__(self, name):
         self.comm = engine.communication._mobile.Communication(name)
-        self.matas = [engine.matas.image.ImageMata(),
-                      engine.matas.dom.DomMata()]
+        self.matas = [engine.matas.image.WebviewImageMata(),
+                      engine.matas.dom.WebviewDomMata()]
 
     def start(self):
         self.comm.start()
