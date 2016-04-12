@@ -21,9 +21,9 @@ def pickfreeport():
 def start_appium_in_subprocess(desired_caps=None, port=None):
         """
             >>> import time
-            >>> import engine.communication._webdriver as wd
+            >>> import engine.communication._mobile as mb
             >>> desired_caps = {'avd': 'avd5.1_new'}
-            >>> p, port = wd.start_appium_in_subprocess(desired_caps)
+            >>> p, port = mb.start_appium_in_subprocess(desired_caps)
             >>> time.sleep(5)
             >>> p.terminate()
             >>> s = p.stdout.readlines()
