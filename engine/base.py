@@ -11,8 +11,8 @@ class Engine(object):
             self.comm = engine.communication._mobile.Communication(name)
         elif config['platform'] == 'desktop':
             self.comm = engine.communication._desktop.Communication(name)
-        self.matas = [engine.matas.image.ImageMata(),
-                      engine.matas.dom.DomMata()]
+        self.matas = [engine.matas.image.WebviewImageMata(),
+                      engine.matas.dom.WebviewDomMata()]
 
     def start(self):
         self.comm.start()
