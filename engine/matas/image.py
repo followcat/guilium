@@ -38,3 +38,21 @@ class WebviewImageMata(engine.matas.base.BaseMata):
         return fullscreen
 
 
+class DesktopImageMata(engine.matas.base.BaseMata):
+    def shotfunc(self, driver):
+        png = driver.get_screenshot_as_png()
+        return png
+
+    def process(self, url, driver):
+        driver.get(url)
+        total_hegiht = driver.execute_script('return document.body.scrollHeight')
+        screen_height = driver.execute_script('return window.screen.height')
+        screen_width = driver.execute_script('return window.screen.width')
+
+        scroll_height = screen_height * 0.8
+        screenshots, last_moved = webviewfullscreen(driver, scroll_height,
+                                                    self.shotfunc)
+        fullscreen = fullimage(screenshots, 0, 0,
+                               screen_width, int(screen_height*0.8),
+                               last_moved)
+        return fullscreen
