@@ -5,13 +5,20 @@ import engine.connector._desktop
 
 
 class Engine(object):
+    connector_classes = {
+        'mobile':   engine.connector._mobile.MobileConnector,
+        'desktop':  engine.connector._desktop.DesktopConnector,
+    }
+
     def __init__(self, name, config):
-        if config['platform'] == 'mobile':
-            self.comm = engine.connector._mobile.MobileConnector(name)
-        elif config['platform'] == 'desktop':
-            self.comm = engine.connector._desktop.DesktopConnector(name)
+        self.name = name
+        self.platform = config['platform']
+        self.comm = self.connector_factory()
         self.matas = [engine.matas.image.WebviewImageMata(),
                       engine.matas.dom.WebviewDomMata()]
+
+    def connector_factory(self):
+        return self.connector_classes[self.platform](self.name)
 
     def start(self):
         self.comm.start()
