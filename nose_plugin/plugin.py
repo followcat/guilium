@@ -32,24 +32,19 @@ class Guilium(nose.plugins.Plugin):
     def options(self, parser, env):
         """"""
         nose.plugins.Plugin.options(self, parser, env)
-        parser.add_option('--stub', action='store',
-                          dest='stub',
-                          metavar="DEVICEstub",
-                          help="Specify the stub.")
-        parser.add_option('--sut', action='store',
-                          dest='sut',
-                          metavar="DEVICE1,DEVICE2",
-                          help="Specify the system under test.")
         parser.add_option('--runlog', action='store_true',
                           dest='runlog',
                           default=False,
                           help="if run from the log file")
+        parser.add_option('--config-file', action='store',
+                          dest='config_file',
+                          default='./test/config.json',
+                          help="Specify the path to the configure file")
         return parser
 
     def configure(self, options, config):
         """Read system under test from options"""
         nose.plugins.Plugin.configure(self, options, config)
-        options.sut = options.sut.split(',')
 
     def prepareTestLoader(self, loader):
         """Set the system under test in loader config"""
@@ -123,7 +118,7 @@ class TestRunner(nose.core.TextTestRunner):
         result = self._makeResult()
         start = time.time()
 
-        runtime = launcher.Runtime(self.config.options)
+        runtime = launcher.Runtime(self.config.options.config_file)
         runtime.setup_environment()
         runtime.start_test()
         setattr(test.config, 'runtime', runtime)

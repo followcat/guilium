@@ -1,3 +1,4 @@
+import json
 import time 
 
 import engine.base
@@ -11,8 +12,8 @@ import validators.image
 
 class Runtime(object):
     """"""
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, config_file):
+        self.config = json.load(open(config_file))
         self.suts = {}
         self.stub = None
         self.storage = core.storage.Storage()
@@ -22,11 +23,14 @@ class Runtime(object):
                            validators.dom.DomValidator('WebviewDomMata')]
 
     def setup_environment(self):
-        for sut in self.config.sut:
-            sut_engine = engine.base.Engine(name=sut)
-            self.suts[sut] = core.component.Component(sut, sut_engine)
-        stub_engine = engine.base.Engine(name=self.config.stub)
-        self.stub = core.component.Component(self.config.stub, stub_engine)
+        for sut in self.config['sut']:
+            name = sut['name']
+            sut_engine = engine.base.Engine(name=name, config=sut['engine'])
+            self.suts[name] = core.component.Component(name, sut_engine)
+        stub = self.config['stub']
+        stub_engine = \
+            engine.base.Engine(name=stub['name'], config=stub['engine'])
+        self.stub = core.component.Component(stub['name'], stub_engine)
         self.communication = \
             self.communication_cls(self.suts, self.stub, self.storage)
 
