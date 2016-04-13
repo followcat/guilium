@@ -25,11 +25,11 @@ class Runtime(object):
     def setup_environment(self):
         for sut in self.config['sut']:
             name = sut['name']
-            sut_engine = engine.base.Engine(name=name, config=sut['engine'])
+            sut_engine = engine.base.Engine(name=name, config=sut)
             self.suts[name] = core.component.Component(name, sut_engine)
         stub = self.config['stub']
         stub_engine = \
-            engine.base.Engine(name=stub['name'], config=stub['engine'])
+            engine.base.Engine(name=stub['name'], config=stub)
         self.stub = core.component.Component(stub['name'], stub_engine)
         self.communication = \
             self.communication_cls(self.suts, self.stub, self.storage)
