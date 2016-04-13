@@ -1,7 +1,7 @@
 class BaseMata(object):
     """"""
-    def __init__(self):
-        self.name = self.__class__.__name__
+    def __init__(self, type):
+        self.type = type
 
     def process(self):
         """"""

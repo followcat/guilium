@@ -66,9 +66,9 @@ class ImageValidator(validators.base.BaseValidator):
 
     def validate(self, url, storage, suts, stub, color=(0,255,0)):
         stack = storage.get()
-        stub_img = stack[stub.name][url][self.mataname]
+        stub_img = stack[stub.name][url][self.type]
         for sut in suts:
-            sut_img = stack[sut.name][url][self.mataname]
+            sut_img = stack[sut.name][url][self.type]
             self.image_diff(stub_img, sut_img,
                             '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png',
                             color)

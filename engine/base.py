@@ -11,10 +11,12 @@ class Engine(object):
     }
 
     mata_classes = {
-        'mobile':   [engine.matas.image.WebviewImageMata,
-                     engine.matas.dom.WebviewDomMata],
-        'desktop':  [engine.matas.image.DesktopImageMata,
-                     engine.matas.dom.DesktopDomMata]
+        'mobile':   {
+            'image': engine.matas.image.WebviewImageMata,
+            'dom':   engine.matas.dom.WebviewDomMata},
+        'desktop':  {
+            'image': engine.matas.image.DesktopImageMata,
+            'dom':   engine.matas.dom.DesktopDomMata}
     }
 
     def __init__(self, name, config):
@@ -24,7 +26,8 @@ class Engine(object):
         self.matas = self.mata_factory()
 
     def mata_factory(self):
-        return [_cls() for _cls in self.mata_classes[self.platform]]
+        return [_cls(_type) for _type, _cls in \
+                    self.mata_classes[self.platform].items()]
 
     def connector_factory(self):
         return self.connector_classes[self.platform](self.name)
@@ -39,7 +42,7 @@ class Engine(object):
         results = {}
         for mata in self.matas:
             result = mata.process(url, self.comm.driver)
-            results[mata.name] = result
+            results[mata.type] = result
         return results
 
 

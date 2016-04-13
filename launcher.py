@@ -19,8 +19,8 @@ class Runtime(object):
         self.storage = core.storage.Storage()
         self.communication_cls = core.communication.Communication
         self.setup_environment()
-        self.validators = [validators.image.ImageValidator('WebviewImageMata'),
-                           validators.dom.DomValidator('WebviewDomMata')]
+        self.validators = [validators.image.ImageValidator('image'),
+                           validators.dom.DomValidator('dom')]
 
     def setup_environment(self):
         for sut in self.config['sut']:

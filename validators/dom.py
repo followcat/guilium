@@ -86,10 +86,10 @@ class DomValidator(validators.base.BaseValidator):
 
     def validate(self, url, storage, suts, stub):
         stack = storage.get()
-        stub_dom = stack[stub.name][url][self.mataname]
+        stub_dom = stack[stub.name][url][self.type]
         stub_info = self.nodefilter(stub_dom)
         for sut in suts:
-            sut_dom = stack[sut.name][url][self.mataname]
+            sut_dom = stack[sut.name][url][self.type]
             sut_info = self.nodefilter(sut_dom)
             results = self.nodecomparer(stub_info, sut_info)
             with open('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.json', 'w') as fp:
