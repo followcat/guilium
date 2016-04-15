@@ -19,6 +19,7 @@ class Engine(object):
 
     def __init__(self, name, config):
         self.name = name
+        self.config = config
         self.platform = config['platform']
         self.comm = self.connector_factory()
         self.matas = self.mata_factory()
@@ -27,7 +28,7 @@ class Engine(object):
         return [_cls() for _cls in self.mata_classes[self.platform]]
 
     def connector_factory(self):
-        return self.connector_classes[self.platform](self.name)
+        return self.connector_classes[self.platform](self.config)
 
     def start(self):
         self.comm.start()

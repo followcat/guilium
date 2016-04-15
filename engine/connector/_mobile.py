@@ -56,14 +56,14 @@ def start_appium_in_subprocess(desired_caps=None, port=None):
 
 class MobileConnector(engine.connector.base.Connector):
 
-    def __init__(self, name):
-        super(MobileConnector, self).__init__(name)
+    def __init__(self, config):
+        super(MobileConnector, self).__init__(config)
         self.desired_caps = {
             'browserName': 'Browser',
             'platformName': 'Android',
             'platformVersion': '4.4',
             'deviceName': 'Android Emulator',
-            'avd': self.name
+            'udid': self.config['udid']
         }
 
     def start(self):
