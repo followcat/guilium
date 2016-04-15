@@ -41,3 +41,7 @@
     Add desktop communication and it's matas.
     Add config loader.
     Split dom and image mata to destop and webview version.
+
+### Apr 15, 2016
+    Set 'mobile' or 'desktop' in config file to choose test read device or chrome emulation
+    Set 'udid' or 'device name' in config file to choose device/emulator
