@@ -49,10 +49,10 @@ class DesktopImageMata(engine.matas.base.BaseMata):
         screen_height = driver.execute_script('return window.screen.height')
         screen_width = driver.execute_script('return window.screen.width')
 
-        scroll_height = screen_height * 0.8
+        scroll_height = int(screen_height)
         screenshots, last_moved = webviewfullscreen(driver, scroll_height,
                                                     self.shotfunc)
         fullscreen = fullimage(screenshots, 0, 0,
-                               screen_width, int(screen_height*0.8),
+                               screen_width, int(screen_height),
                                last_moved)
         return fullscreen
