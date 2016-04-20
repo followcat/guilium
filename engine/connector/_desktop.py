@@ -15,6 +15,7 @@ class DesktopConnector(engine.connector.base.Connector):
 
     def start(self):
         self.driver = selenium.webdriver.Chrome(chrome_options=self.options)
+        self.driver.maximize_window()
 
     def stop(self):
         self.driver.quit()
