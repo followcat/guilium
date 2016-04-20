@@ -1,0 +1,13 @@
+{
+    "sut": [ {
+        "platform": "desktop",
+        "name": "Nexus_5",
+        "device name": "Google Nexus 5"
+    } ],
+    "stub": {
+        "platform": "mobile",
+        "name": "avd5.1",
+        "udid": "emulator-5554"
+    }
+}
+
