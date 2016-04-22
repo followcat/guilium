@@ -69,6 +69,8 @@ class DomValidator(validators.base.BaseValidator):
     def nodecomparer(self, d1, d2):
         results = []
         for each in d1:
+            if each == (None, None):
+                continue
             for index in range(len(d1[each])):
                 if each not in d2:
                     results.append((each, index))
