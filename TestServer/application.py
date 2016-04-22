@@ -17,15 +17,18 @@ def samplemotor():
 @app.route('/content')
 def contentindex():
     user_agent = request.headers.get('User-Agent')
+    source = render_template('index.html')
     if 'Nexus 5' in user_agent:
-        source = render_template('index.html')
         return source.replace('showcasing', 'showcasiny')
-    return render_template('index.html')
+    return source
 
 @app.route('/mod')
 def modindex():
     source = render_template('index.html')
-    return source.replace('This is a template', 'This iis a template').replace('Bootstrap', 'Boo0ststrap')
+    user_agent = request.headers.get('User-Agent')
+    if 'Nexus 5' in user_agent:
+        return source.replace('This is a template', 'This iis a template').replace('Bootstrap', 'Boo0ststrap')
+    return source
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
