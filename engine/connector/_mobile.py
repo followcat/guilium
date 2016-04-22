@@ -85,12 +85,30 @@ class MobileConnector(engine.connector.base.Connector):
 
     def initaction(self):
         self.driver.switch_to.context('NATIVE_APP')
-        self.driver.tap([(240, 68)])
-        time.sleep(0.5)
-        self.driver.tap([(20, 68)])
-        time.sleep(0.5)
-        self.driver.tap([(240, 400)])
-        time.sleep(0.5)
+        size = self.driver.get_window_size()
+        width = int(size['width'])
+        if width == 480:
+            self.driver.tap([(240, 68)])
+            time.sleep(0.5)
+            self.driver.tap([(20, 68)])
+            time.sleep(0.5)
+            self.driver.tap([(240, 400)])
+            time.sleep(0.5)
+        elif width == 1080:
+            self.driver.tap([(540, 163)])
+            time.sleep(0.5)
+            self.driver.tap([(40, 163)])
+            time.sleep(0.5)
+            self.driver.tap([(540, 960)])
+            time.sleep(0.5)
+        elif width == 720:
+            self.driver.tap([(360, 109)])
+            time.sleep(0.5)
+            self.driver.tap([(27, 109)])
+            time.sleep(0.5)
+            self.driver.tap([(360, 640)])
+            time.sleep(0.5)
+
 
     def stop(self):
         self.driver.quit()
