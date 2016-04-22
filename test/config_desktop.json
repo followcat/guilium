@@ -4,16 +4,6 @@
         "platform": "desktop",
         "name": "Nexus_5",
         "device name": "Google Nexus 5"
-        },
-        {
-        "platform": "desktop",
-        "name": "Xperia_S",
-        "device name": "Sony Xperia S, Ion"
-        },
-        {
-        "platform": "desktop",
-        "name": "Optimus_One",
-        "device name": "LG Optimus One"
         }
     ],
     "stub": {
