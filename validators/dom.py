@@ -1,5 +1,7 @@
 import json
 
+import collections
+
 import validators.base
 
 
@@ -10,7 +12,7 @@ class DomValidator(validators.base.BaseValidator):
         x.pop('attributes')
         x.pop('childNodes')
         if d is None:
-            d = {}
+            d = collections.OrderedDict()
         if (x['top'], x['left']) not in d:
             d[(x['top'], x['left'])] = []
         d[(x['top'], x['left'])].append(x)
@@ -68,26 +70,31 @@ class DomValidator(validators.base.BaseValidator):
 
     def nodecomparer(self, d1, d2):
         results = []
+
+        def node_details(node, index_1, index_2):
+            return (index_1, index_2, node[index_1][index_2]['height'],
+                    node[index_1][index_2]['width'])
+
         for each in d1:
             if each == (None, None):
                 continue
             for index in range(len(d1[each])):
                 if each not in d2:
-                    results.append((each, index))
+                    results.append(node_details(d1, each, index))
                     continue
                 else:
                     try:
                         if (d1[each][index]['width'] != d2[each][index]['width'] or
                             d1[each][index]['height'] != d2[each][index]['height'] or
                             d1[each][index]['textContent'] != d2[each][index]['textContent']):
-                            results.append((each, index))
+                            results.append(node_details(d1, each, index))
                             break
                         for s in d1[each][index]['style']:
                             if d1[each][index]['style'][s] != d2[each][index]['style'][s]:
-                                results.append((each, index))
+                                results.append(node_details(d1, each, index))
                                 break
                     except IndexError:
-                        results.append((each, index))
+                        results.append(node_details(d1, each, index))
                         continue
         return results
 
