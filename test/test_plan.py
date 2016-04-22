@@ -3,10 +3,10 @@ import core.test
 
 def urls():
 
-    return ['http://10.0.0.105:5000/',
-            'http://10.0.0.105:5000/mod',
-            'http://10.0.0.105:5000/content',
-            'http://10.0.0.105:5000/samplemotor',
+    return ['http://localhost:5000/',
+            'http://localhost:5000/mod',
+            'http://localhost:5000/content',
+            'http://localhost:5000/samplemotor',
             'http://www.baidu.com/']
 
 def TestGenerator():
