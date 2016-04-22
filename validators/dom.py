@@ -76,7 +76,8 @@ class DomValidator(validators.base.BaseValidator):
                 else:
                     try:
                         if (d1[each][index]['width'] != d2[each][index]['width'] or
-                            d1[each][index]['height'] != d2[each][index]['height']):
+                            d1[each][index]['height'] != d2[each][index]['height'] or
+                            d1[each][index]['textContent'] != d2[each][index]['textContent']):
                             results.append((each, index))
                             break
                         for s in d1[each][index]['style']:
