@@ -74,14 +74,18 @@ class DomValidator(validators.base.BaseValidator):
                     results.append((each, index))
                     continue
                 else:
-                    if (d1[each][index]['width'] != d2[each][index]['width'] or
-                        d1[each][index]['height'] != d2[each][index]['height']):
-                        results.append((each, index))
-                        break
-                    for s in d1[each][index]['style']:
-                        if d1[each][index]['style'][s] != d2[each][index]['style'][s]:
+                    try:
+                        if (d1[each][index]['width'] != d2[each][index]['width'] or
+                            d1[each][index]['height'] != d2[each][index]['height']):
                             results.append((each, index))
                             break
+                        for s in d1[each][index]['style']:
+                            if d1[each][index]['style'][s] != d2[each][index]['style'][s]:
+                                results.append((each, index))
+                                break
+                    except IndexError:
+                        results.append((each, index))
+                        continue
         return results
 
     def validate(self, url, storage, suts, stub):
