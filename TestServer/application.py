@@ -10,6 +10,10 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
+@app.route('/samplemotor')
+def samplemotor():
+    return render_template('sample_motor.html')
+
 @app.route('/content')
 def contentindex():
     user_agent = request.headers.get('User-Agent')
@@ -24,4 +28,4 @@ def modindex():
     return source.replace('This is a template', 'This iis a template').replace('Bootstrap', 'Boo0ststrap')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)
