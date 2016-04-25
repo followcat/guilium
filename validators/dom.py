@@ -3,6 +3,7 @@ import json
 import collections
 
 import validators.base
+import validators.error
 import engine.matas.image
 
 
@@ -93,3 +94,7 @@ class DomValidator(validators.base.BaseValidator):
             tmp_img_matas = engine.matas.image.DesktopImageMata()
             indexModShot = tmp_img_matas.onlyshot(driver)
             indexModShot.save('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png')
+            if len(results) > 0:
+                import ipdb;ipdb.set_trace()
+                raise validators.error.TestError("%d differences found in "
+                            "positions %s..." %(len(results), results[0][0]))
