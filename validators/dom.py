@@ -23,31 +23,6 @@ class DomValidator(validators.base.BaseValidator):
             self.nodefilter(each, d)
         return d
 
-    def markelements(self, driver, results):
-
-        one_label = """
-        function one_label(top, left, height, width) {
-            d = document.createElement("div");
-            d.style.position="absolute";
-            d.style.top=top+"px";
-            d.style.left=left+"px";
-            d.style.width=width+"px";
-            d.style.height=height+"px";
-            d.style.border='2px dashed red';
-            document.body.appendChild(d);
-            return d;
-        }
-        """
-        for each in results:
-            top = str(each[0][0])
-            left = str(each[0][1])
-            height = str(each[2])
-            width = str(each[3])
-            try:
-                driver.execute_script(one_label+"\none_label("+top+", "+left+", "+height+", "+width+");")
-            except Exception as e:
-                continue
-
     def nodecomparer(self, d1, d2):
         results = []
 
@@ -89,8 +64,36 @@ class DomValidator(validators.base.BaseValidator):
             with open('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.json', 'w') as fp:
                 json.dump(results, fp)
             driver = sut.engine.comm.driver
-            self.markelements(driver, results)
-            tmp_img_matas = engine.matas.image.DesktopImageMata()
-            tmp_img_matas.loaddriver(driver)
-            indexModShot = tmp_img_matas.screenshot()
-            indexModShot.save('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png')
+            self.imagereport(driver)
+
+    def markelements(self, driver, results):
+
+        one_label = """
+        function one_label(top, left, height, width) {
+            d = document.createElement("div");
+            d.style.position="absolute";
+            d.style.top=top+"px";
+            d.style.left=left+"px";
+            d.style.width=width+"px";
+            d.style.height=height+"px";
+            d.style.border='2px dashed red';
+            document.body.appendChild(d);
+            return d;
+        }
+        """
+        for each in results:
+            top = str(each[0][0])
+            left = str(each[0][1])
+            height = str(each[2])
+            width = str(each[3])
+            try:
+                driver.execute_script(one_label+"\none_label("+top+", "+left+", "+height+", "+width+");")
+            except Exception as e:
+                continue
+
+    def imagereport(self, sut_driver):
+        self.markelements(sut_driver, results)
+        tmp_img_matas = engine.matas.image.DesktopImageMata()
+        tmp_img_matas.loaddriver(driver)
+        indexModShot = tmp_img_matas.screenshot()
+        indexModShot.save('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png')
