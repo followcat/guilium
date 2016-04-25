@@ -3,6 +3,7 @@ import json
 import collections
 
 import validators.base
+import engine.matas.image
 
 
 class DomValidator(validators.base.BaseValidator):
@@ -22,51 +23,30 @@ class DomValidator(validators.base.BaseValidator):
             self.nodefilter(each, d)
         return d
 
-    def markelements(self, driver, info, results):
+    def markelements(self, driver, results):
+
         one_label = """
-        function one_label(key) {
-            var ele = node_info[key];
-            ele.style.border='2px dashed red';
+        function one_label(top, left, height, width) {
+            d = document.createElement("div");
+            d.style.position="absolute";
+            d.style.top=top+"px";
+            d.style.left=left+"px";
+            d.style.width=width+"px";
+            d.style.height=height+"px";
+            d.style.border='2px dashed red';
+            document.body.appendChild(d);
+            return d;
         }
         """
         for each in results:
-            arr_str = str(each[0][0])+','+str(each[0][1])+','+\
-                      str(info[each[0]][each[1]]['width'])+','+str(info[each[0]][each[1]]['height'])
+            top = str(each[0][0])
+            left = str(each[0][1])
+            height = str(each[2])
+            width = str(each[3])
             try:
-                driver.execute_script(one_label+"\none_label(["+arr_str+"]);")
+                driver.execute_script(one_label+"\none_label("+top+", "+left+", "+height+", "+width+");")
             except Exception as e:
                 continue
-
-    def init_nodeinfo(self,driver):
-        node_function = """ 
-        node_info = {}
-
-        function getTop(e) { 
-            var offset=e.offsetTop; 
-            if(e.offsetParent!=null) offset+=getTop(e.offsetParent); 
-                return offset; 
-        } 
-
-        function getLeft(e) { 
-            var offset=e.offsetLeft; 
-            if(e.offsetParent!=null) offset+=getLeft(e.offsetParent); 
-                return offset; 
-        }
-
-        function kvnode (node)
-        {
-            node_info[[getTop(node), getLeft(node), node.clientWidth, node.clientHeight]] = node
-            if (node.childNodes && node.childNodes.length) {
-                for (var i = 0; i < node.childNodes.length; ++i)
-                    kvnode (node.childNodes.item(i));
-            };
-        }
-
-        kvnode(document.body);
-        return node_info;
-        """
-        node_info = driver.execute_script(node_function)
-        return node_info
 
     def nodecomparer(self, d1, d2):
         results = []
@@ -108,6 +88,8 @@ class DomValidator(validators.base.BaseValidator):
             results = self.nodecomparer(stub_info, sut_info)
             with open('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.json', 'w') as fp:
                 json.dump(results, fp)
-            # driver_node_info = self.init_nodeinfo(driver)
-            # self.markelements(driver, driver_node_info, results)
-            # indexModShot = screen_storage.webviewfullscreen(driver)
+            driver = sut.engine.comm.driver
+            self.markelements(driver, results)
+            tmp_img_matas = engine.matas.image.DesktopImageMata()
+            indexModShot = tmp_img_matas.onlyshot(driver)
+            indexModShot.save('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png')
