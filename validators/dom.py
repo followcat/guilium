@@ -100,7 +100,8 @@ class DomValidator(validators.base.BaseValidator):
             driver = sut.engine.comm.driver
             self.markelements(driver, results)
             tmp_img_matas = engine.matas.image.DesktopImageMata()
-            indexModShot = tmp_img_matas.onlyshot(driver)
+            tmp_img_matas.loaddriver(driver)
+            indexModShot = tmp_img_matas.screenshot()
             indexModShot.save('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png')
             if len(results) > 0:
                 raise validators.error.TestError("%d differences found in "

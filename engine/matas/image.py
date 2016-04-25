@@ -5,54 +5,105 @@ from engine.processor.image import webviewfullscreen, fullimage
 from engine.processor.image import get_contain, get_webview, location, bounds, size
 
 
-class WebviewImageMata(engine.matas.base.BaseMata):
-    def shotfunc(self, driver):
-        driver.switch_to.context('NATIVE_APP')
-        png = driver.get_screenshot_as_png()
-        driver.switch_to.context('CHROMIUM')
+class ImageMata(engine.matas.base.BaseMata):
+
+    @property
+    def WIDTH(self):
+        screen_width = self.driver.execute_script('return window.screen.width')
+        return screen_width
+
+    @property
+    def HEIGHT(self):
+        screen_height = self.driver.execute_script('return window.screen.height')
+        return screen_height
+
+    @property
+    def SCROLLHEIGHT(self):
+        scroll_height = int(self.HEIGHT)
+        return scroll_height
+
+    @property
+    def X(self):
+        return 0
+
+    @property
+    def Y(self):
+        return 0
+
+    @property
+    def SCALE(self):
+        return 1
+
+    def loaddriver(self, driver):
+        self.driver = driver
+
+    def shotfunc(self):
+        png = self.driver.get_screenshot_as_png()
         return png
 
-    def process(self, url, driver):
-        driver.switch_to.context('CHROMIUM')
-        driver.get(url)
-
-        contain = get_contain(driver)
-        contain_bound = bounds(contain.get('bounds'))
-        contain_size = size(contain_bound)
-        webview = get_webview(driver)
-        webview_bound = bounds(webview.get('bounds'))
-        webview_location = location(webview_bound)
-
-        driver.switch_to.context('CHROMIUM')
-        total_hegiht = driver.execute_script('return document.body.scrollHeight')
-        screen_height = driver.execute_script('return window.screen.height')
-
-        scale = float(screen_height)/contain_size['height']
-        scroll_height = math.ceil((contain_size['height']-webview_location['y'])*scale)
-        screenshots, last_moved = webviewfullscreen(driver, scroll_height,
-                                                    self.shotfunc, scale)
-        fullscreen = fullimage(screenshots,
-                               webview_location['x'], webview_location['y'],
-                               contain_size['width'], contain_size['height'],
+    def screenshot(self):
+        screenshots, last_moved = webviewfullscreen(self.driver, self.SCROLLHEIGHT,
+                                                    self.shotfunc, self.SCALE)
+        fullscreen = fullimage(screenshots, self.X, self.Y,
+                               self.WIDTH, self.HEIGHT,
                                last_moved)
         return fullscreen
 
+class WebviewImageMata(ImageMata):
 
-class DesktopImageMata(engine.matas.base.BaseMata):
-    def shotfunc(self, driver):
-        png = driver.get_screenshot_as_png()
+    @property
+    def SCROLLHEIGHT(self):
+        scroll_height = math.ceil((self.HEIGHT-self.Y)*self.SCALE)
+        return scroll_height
+
+    @property
+    def X(self):
+        return self.webview_location['x']
+
+    @property
+    def Y(self):
+        return self.webview_location['y']
+
+    @property
+    def WIDTH(self):
+        return self.contain_size['width']
+
+    @property
+    def HEIGHT(self):
+        return self.contain_size['height']
+
+    @property
+    def SCALE(self):
+        screen_height = self.driver.execute_script('return window.screen.height')
+        return float(screen_height)/self.HEIGHT
+
+    def shotfunc(self):
+        self.driver.switch_to.context('NATIVE_APP')
+        png = self.driver.get_screenshot_as_png()
+        self.driver.switch_to.context('CHROMIUM')
         return png
 
-    def process(self, url, driver):
-        driver.get(url)
-        total_hegiht = driver.execute_script('return document.body.scrollHeight')
-        screen_height = driver.execute_script('return window.screen.height')
-        screen_width = driver.execute_script('return window.screen.width')
+    def loaddriver(self, driver):
+        self.driver = driver
+        contain = get_contain(driver)
+        contain_bound = bounds(contain.get('bounds'))
+        self.contain_size = size(contain_bound)
+        webview = get_webview(driver)
+        webview_bound = bounds(webview.get('bounds'))
+        self.webview_location = location(webview_bound)
 
-        scroll_height = int(screen_height)
-        screenshots, last_moved = webviewfullscreen(driver, scroll_height,
-                                                    self.shotfunc)
-        fullscreen = fullimage(screenshots, 0, 0,
-                               screen_width, int(screen_height),
-                               last_moved)
+    def process(self, url, driver):
+        self.loaddriver(driver)
+        self.driver.switch_to.context('CHROMIUM')
+        self.driver.get(url)
+        fullscreen = self.screenshot()
+        return fullscreen
+
+
+class DesktopImageMata(ImageMata):
+
+    def process(self, url, driver):
+        self.loaddriver(driver)
+        self.driver.get(url)
+        fullscreen = self.screenshot()
         return fullscreen
