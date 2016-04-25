@@ -97,11 +97,17 @@ class DomValidator(validators.base.BaseValidator):
         stub_driver = stub.engine.comm.driver
 
         self.markelements(sut_driver, differences)
-        sut_img_mata = engine.matas.image.ImageMata()
+        if sut.engine.platform == 'mobile':
+            sut_img_mata = engine.matas.image.WebviewImageMata()
+        elif sut.engine.platform == 'desktop':
+            sut_img_mata = engine.matas.image.DesktopImageMata()
         sut_img_mata.loaddriver(sut_driver)
         sutShot = sut_img_mata.screenshot()
 
-        stub_img_mata = engine.matas.image.ImageMata()
+        if stub.engine.platform == 'mobile':
+            stub_img_mata = engine.matas.image.WebviewImageMata()
+        elif stub.engine.platform == 'desktop':
+            stub_img_mata = engine.matas.image.DesktopImageMata()
         stub_img_mata.loaddriver(stub_driver)
         stubShot = stub_img_mata.screenshot()
 
