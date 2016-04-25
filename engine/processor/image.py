@@ -54,7 +54,7 @@ def get_webview(driver):
         elems = list(xmlobj)
         for each in elems:
             allview(each, save)
-        if xmlobj.tag == 'android.view.View':
+        if xmlobj.tag == 'android.view.View' or xmlobj.tag == 'android.webkit.WebView':
             save.append(xmlobj)
         return save
     driver.switch_to.context('NATIVE_APP')
@@ -77,7 +77,7 @@ def webviewfullscreen(driver, scroll_height, shotfunc, scale=1):
         driver.execute_script('window.scrollTo(0, %d);' % (count*scroll_height))
         moved = driver.execute_script('return document.body.scrollTop') - scrolled
         time.sleep(1)
-        png = shotfunc(driver)
+        png = shotfunc()
         screenshots.append(png)
         count += 1
         if last_moved > moved or (last_moved > 0 and moved == 0):
