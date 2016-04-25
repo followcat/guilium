@@ -1,6 +1,7 @@
 import json
-
 import collections
+
+import Image
 
 import validators.base
 import engine.matas.image
@@ -63,8 +64,7 @@ class DomValidator(validators.base.BaseValidator):
             results = self.nodecomparer(stub_info, sut_info)
             with open('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.json', 'w') as fp:
                 json.dump(results, fp)
-            driver = sut.engine.comm.driver
-            self.imagereport(driver)
+            self.imagereport(results, sut, stub, url)
 
     def markelements(self, driver, results):
 
@@ -87,13 +87,28 @@ class DomValidator(validators.base.BaseValidator):
             height = str(each[2])
             width = str(each[3])
             try:
-                driver.execute_script(one_label+"\none_label("+top+", "+left+", "+height+", "+width+");")
+                driver.execute_script(one_label+"\none_label("+top+", "+left+","
+                                      +height+", "+width+");")
             except Exception as e:
                 continue
 
-    def imagereport(self, sut_driver):
-        self.markelements(sut_driver, results)
-        tmp_img_matas = engine.matas.image.DesktopImageMata()
-        tmp_img_matas.loaddriver(driver)
-        indexModShot = tmp_img_matas.screenshot()
-        indexModShot.save('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png')
+    def imagereport(self, differences, sut, stub, url):
+        sut_driver = sut.engine.comm.driver
+        stub_driver = stub.engine.comm.driver
+
+        self.markelements(sut_driver, differences)
+        sut_img_mata = engine.matas.image.ImageMata()
+        sut_img_mata.loaddriver(sut_driver)
+        sutShot = sut_img_mata.screenshot()
+
+        stub_img_mata = engine.matas.image.ImageMata()
+        stub_img_mata.loaddriver(stub_driver)
+        stubShot = stub_img_mata.screenshot()
+
+        sut_width, sut_height = sutShot.size
+        stub_width, stub_height = stubShot.size
+        result_image = Image.new('RGBA', (sut_width+stub_width,
+                                          max(sut_height, stub_height)))
+        result_image.paste(sutShot, (0, 0))
+        result_image.paste(stubShot, (sut_width, 0))
+        result_image.save('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png')
