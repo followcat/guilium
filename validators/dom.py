@@ -1,6 +1,7 @@
 import json
-
 import collections
+
+import Image
 
 import validators.base
 import validators.error
@@ -27,31 +28,6 @@ class DomValidator(validators.base.BaseValidator):
         for each in node['childNodes']:
             self.nodefilter(each, d)
         return d
-
-    def markelements(self, driver, results):
-
-        one_label = """
-        function one_label(top, left, height, width) {
-            d = document.createElement("div");
-            d.style.position="absolute";
-            d.style.top=top+"px";
-            d.style.left=left+"px";
-            d.style.width=width+"px";
-            d.style.height=height+"px";
-            d.style.border='2px dashed red';
-            document.body.appendChild(d);
-            return d;
-        }
-        """
-        for each in results:
-            top = str(each[0][0])
-            left = str(each[0][1])
-            height = str(each[2])
-            width = str(each[3])
-            try:
-                driver.execute_script(one_label+"\none_label("+top+", "+left+", "+height+", "+width+");")
-            except Exception as e:
-                continue
 
     def nodecomparer(self, d1, d2):
         results = []
@@ -95,14 +71,66 @@ class DomValidator(validators.base.BaseValidator):
             sut_dom = stack[sut.name][url][self.type]
             sut_info = self.nodefilter(sut_dom)
             results = self.nodecomparer(stub_info, sut_info)
-            with open('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.json', 'w') as fp:
-                json.dump(results, fp)
             driver = sut.engine.comm.driver
             self.markelements(driver, results)
             tmp_img_matas = engine.matas.image.DesktopImageMata()
             tmp_img_matas.loaddriver(driver)
             indexModShot = tmp_img_matas.screenshot()
             indexModShot.save('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png')
+            self.imagereport(results, sut, stub, url)
             if len(results) > 0:
                 raise validators.error.TestError("%d differences found in "
                             "positions %s..." %(len(results), results[0][0]))
+
+    def markelements(self, driver, results):
+
+        one_label = """
+        function one_label(top, left, height, width) {
+            d = document.createElement("div");
+            d.style.position="absolute";
+            d.style.top=top+"px";
+            d.style.left=left+"px";
+            d.style.width=width+"px";
+            d.style.height=height+"px";
+            d.style.border='2px dashed red';
+            document.body.appendChild(d);
+            return d;
+        }
+        """
+        for each in results:
+            top = str(each[0][0])
+            left = str(each[0][1])
+            height = str(each[2])
+            width = str(each[3])
+            try:
+                driver.execute_script(one_label+"\none_label("+top+", "+left+","
+                                      +height+", "+width+");")
+            except Exception as e:
+                continue
+
+    def imagereport(self, differences, sut, stub, url):
+        sut_driver = sut.engine.comm.driver
+        stub_driver = stub.engine.comm.driver
+
+        self.markelements(sut_driver, differences)
+        if sut.engine.platform == 'mobile':
+            sut_img_mata = engine.matas.image.WebviewImageMata()
+        elif sut.engine.platform == 'desktop':
+            sut_img_mata = engine.matas.image.DesktopImageMata()
+        sut_img_mata.loaddriver(sut_driver)
+        sutShot = sut_img_mata.screenshot()
+
+        if stub.engine.platform == 'mobile':
+            stub_img_mata = engine.matas.image.WebviewImageMata()
+        elif stub.engine.platform == 'desktop':
+            stub_img_mata = engine.matas.image.DesktopImageMata()
+        stub_img_mata.loaddriver(stub_driver)
+        stubShot = stub_img_mata.screenshot()
+
+        sut_width, sut_height = sutShot.size
+        stub_width, stub_height = stubShot.size
+        result_image = Image.new('RGBA', (sut_width+stub_width,
+                                          max(sut_height, stub_height)))
+        result_image.paste(sutShot, (0, 0))
+        result_image.paste(stubShot, (sut_width, 0))
+        result_image.save('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png')

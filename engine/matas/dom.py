@@ -69,9 +69,14 @@ class DomMata(engine.matas.base.BaseMata):
             'top': getTop(node),
             'left': getLeft(node),
             'attributes': [],
-            'childNodes': [],
-            'style': css2json(window.getComputedStyle(node, null)),
+            'childNodes': []
         };
+        try {
+            node_info['style'] = css2json(window.getComputedStyle(node, null));
+        } catch(error) {
+            node_info['style'] = {};
+        }
+
         if (node.attributes && node.attributes.length) {
             for (var i = 0; i < node.attributes.length; ++i)
                 node_info.attributes.push(traverse_nodes (node.attributes.item(i)));
