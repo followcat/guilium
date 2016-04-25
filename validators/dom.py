@@ -9,6 +9,10 @@ import engine.matas.image
 
 class DomValidator(validators.base.BaseValidator):
 
+    def __init__(self, compare_text=False):
+        super(DomValidator, self).__init__()
+        self.compare_text = compare_text
+
     def nodefilter(self, node, d=None):
         x = dict(node)
         x.pop('attributes')
@@ -66,14 +70,18 @@ class DomValidator(validators.base.BaseValidator):
                 else:
                     try:
                         if (d1[each][index]['width'] != d2[each][index]['width'] or
-                            d1[each][index]['height'] != d2[each][index]['height'] or
-                            d1[each][index]['textContent'] != d2[each][index]['textContent']):
+                            d1[each][index]['height'] != d2[each][index]['height']):
                             results.append(node_details(d1, each, index))
                             break
                         for s in d1[each][index]['style']:
                             if d1[each][index]['style'][s] != d2[each][index]['style'][s]:
                                 results.append(node_details(d1, each, index))
                                 break
+                        if self.compare_text and \
+                            d1[each][index]['innerText'] != d2[each][index]['innerText']:
+                            if d1[each][index]['nodename'] in ['STYLE', 'SCRIPT']:
+                                continue
+                            results.append(node_details(d1, each, index))
                     except IndexError:
                         results.append(node_details(d1, each, index))
                         continue
@@ -95,6 +103,5 @@ class DomValidator(validators.base.BaseValidator):
             indexModShot = tmp_img_matas.onlyshot(driver)
             indexModShot.save('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png')
             if len(results) > 0:
-                import ipdb;ipdb.set_trace()
                 raise validators.error.TestError("%d differences found in "
                             "positions %s..." %(len(results), results[0][0]))

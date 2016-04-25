@@ -59,7 +59,7 @@ class DomMata(engine.matas.base.BaseMata):
         var node_info = {
             'id': node.id,
             'name': node.nodeName,
-            'textContent': node.textContent,
+            'innerText': node.innerText,
             'class': node.className,
             'value': node.nodeValue,
             'nodetype': node.nodeType,
