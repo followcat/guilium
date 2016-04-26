@@ -53,7 +53,7 @@ class WebviewImageMata(ImageMata):
 
     @property
     def SCROLLHEIGHT(self):
-        scroll_height = math.ceil((self.HEIGHT-self.Y)*self.SCALE)
+        scroll_height = math.ceil(self.HEIGHT*self.SCALE)
         return scroll_height
 
     @property
@@ -70,13 +70,11 @@ class WebviewImageMata(ImageMata):
 
     @property
     def HEIGHT(self):
-        return self.contain_size['height']
+        return self.contain_size['height'] - self.Y
 
     @property
     def SCALE(self):
-        self.driver.switch_to.context('CHROMIUM')
-        screen_height = self.driver.execute_script('return window.screen.height')
-        return float(screen_height)/self.HEIGHT
+        return float(self.screen_width)/self.contain_size['width']
 
     def shotfunc(self):
         self.driver.switch_to.context('NATIVE_APP')
@@ -86,17 +84,21 @@ class WebviewImageMata(ImageMata):
 
     def loaddriver(self, driver):
         self.driver = driver
+        self.driver.switch_to.context('NATIVE_APP')
         contain = get_contain(driver)
         contain_bound = bounds(contain.get('bounds'))
         self.contain_size = size(contain_bound)
         webview = get_webview(driver)
         webview_bound = bounds(webview.get('bounds'))
         self.webview_location = location(webview_bound)
+        self.driver.switch_to.context('CHROMIUM')
+        self.screen_width = self.driver.execute_script('return window.screen.width')
 
     def process(self, url, driver):
         self.loaddriver(driver)
         self.driver.switch_to.context('CHROMIUM')
         self.driver.get(url)
+        self.scrollfullscreen(driver)
         fullscreen = self.screenshot()
         return fullscreen
 

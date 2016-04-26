@@ -89,7 +89,7 @@ def fullimage(screenshots, x, y, width, height, last_moved):
     cimgs = []
     for each in range(len(screenshots)):
         img = Image.open(StringIO.StringIO(screenshots[each]))
-        region = [x, y, width, height]
+        region = [x, y, width, height+y]
         if each == len(screenshots)-1:
             region[1]=region[3]-last_moved
         cimg = img.crop(tuple(region))
