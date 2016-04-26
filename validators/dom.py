@@ -127,6 +127,14 @@ class DomValidator(validators.base.BaseValidator):
 
         sut_width, sut_height = sutShot.size
         stub_width, stub_height = stubShot.size
+        if stub_width > sut_width:
+            scale = float(sut_width)/float(stub_width)
+            stubShot = stubShot.resize((sut_width, int(stub_height*scale)))
+            stub_width, stub_height = stubShot.size
+        elif stub_width < sut_width:
+            scale = float(stub_width)/float(sut_width)
+            sutShot = sutShot.resize((stub_width, int(sut_height*scale)))
+            sut_width, sut_height = sutShot.size
         result_image = Image.new('RGBA', (sut_width+stub_width,
                                           max(sut_height, stub_height)))
         result_image.paste(sutShot, (0, 0))
