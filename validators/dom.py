@@ -71,6 +71,8 @@ class DomValidator(validators.base.BaseValidator):
             sut_dom = stack[sut.name][url][self.type]
             sut_info = self.nodefilter(sut_dom)
             results = self.nodecomparer(stub_info, sut_info)
+            with open('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.json', 'w') as fp:
+                json.dump(results, fp)
             driver = sut.engine.comm.driver
             self.markelements(driver, results)
             tmp_img_matas = engine.matas.image.DesktopImageMata()
