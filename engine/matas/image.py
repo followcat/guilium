@@ -74,6 +74,7 @@ class WebviewImageMata(ImageMata):
 
     @property
     def SCALE(self):
+        self.driver.switch_to.context('CHROMIUM')
         screen_height = self.driver.execute_script('return window.screen.height')
         return float(screen_height)/self.HEIGHT
 
