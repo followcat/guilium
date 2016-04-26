@@ -40,6 +40,24 @@ class DomMata(engine.matas.base.BaseMata):
             return offset; 
     } 
 
+    function getElementOffset(e) {
+        var t = e.offsetTop;
+        var l = e.offsetLeft;
+        var w = e.offsetWidth;
+        var h = e.offsetHeight;
+
+        while(e=e.offsetParent) {
+            t+=e.offsetTop;
+            l+=e.offsetLeft;
+        }
+        return {
+            top : t,
+            left : l,
+            width : w,
+            height : h
+        }
+    }
+
     function css2json(css) {
         var s = {};
         if (css == null) {
@@ -56,6 +74,7 @@ class DomMata(engine.matas.base.BaseMata):
 
     function traverse_nodes (node)
     {
+        var offset = getElementOffset(node)
         var node_info = {
             'id': node.id,
             'name': node.nodeName,
@@ -64,10 +83,10 @@ class DomMata(engine.matas.base.BaseMata):
             'value': node.nodeValue,
             'nodetype': node.nodeType,
             'nodename': node.nodeName,
-            'height': node.clientHeight,
-            'width': node.clientWidth,
-            'top': getTop(node),
-            'left': getLeft(node),
+            'height': offset['height'],
+            'width': offset['width'],
+            'top': offset['top'],
+            'left': offset['left'],
             'attributes': [],
             'childNodes': []
         };
@@ -97,6 +116,7 @@ class WebviewDomMata(DomMata):
     def process(self, url, driver):
         driver.switch_to.context('CHROMIUM')
         driver.get(url)
+        self.scrollfullscreen(driver)
         dom = driver.execute_script(self.jscodes)
         return dom
 
@@ -105,5 +125,6 @@ class DesktopDomMata(DomMata):
     """"""
     def process(self, url, driver):
         driver.get(url)
+        self.scrollfullscreen(driver)
         dom = driver.execute_script(self.jscodes)
         return dom
