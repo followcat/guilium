@@ -4,6 +4,7 @@ from flask import render_template
 
 
 app = Flask(__name__)
+samplemotor_nums = 0
 
 
 @app.route('/')
@@ -12,7 +13,13 @@ def index():
 
 @app.route('/samplemotor')
 def samplemotor():
-    return render_template('sample_motor.html')
+    global samplemotor_nums
+    if samplemotor_nums%2 == 0:
+        img_str = "/static/img/motor.jpg"
+    else:
+        img_str = "/static/img/DodgeTomahawk.jpg"
+    samplemotor_nums += 1
+    return render_template('sample_motor.html', img_str=img_str)
 
 @app.route('/content')
 def contentindex():
