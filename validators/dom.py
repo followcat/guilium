@@ -75,10 +75,12 @@ class DomValidator(validators.base.BaseValidator):
                 json.dump(results, fp)
             driver = sut.engine.comm.driver
             self.markelements(driver, results)
-            self.imagereport(results, sut, stub, url)
+            image_file = self.imagereport(results, sut, stub, url)
+            link = 'file://' + image_file
             if len(results) > 0:
                 raise validators.error.TestError("%d differences found in "
-                            "positions %s..." %(len(results), results[0][0]))
+                            "positions %s... "
+                            "\nSee %s" %(len(results), results[0][0], link))
 
     def markelements(self, driver, results):
 
@@ -139,4 +141,6 @@ class DomValidator(validators.base.BaseValidator):
                                           max(sut_height, stub_height)))
         result_image.paste(sutShot, (0, 0))
         result_image.paste(stubShot, (sut_width, 0))
-        result_image.save('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png')
+        img_file = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png'
+        result_image.save(img_file)
+        return img_file
