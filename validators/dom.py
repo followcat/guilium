@@ -20,13 +20,13 @@ class DomValidator(validators.base.BaseValidator):
         x.pop('childNodes')
         if d is None:
             d = collections.OrderedDict()
-        if (x['top'], x['left']) not in d:
-            d[(x['top'], x['left'])] = []
-        d[(x['top'], x['left'])].append(x)
         for each in node['attributes']:
             self.nodefilter(each, d)
         for each in node['childNodes']:
             self.nodefilter(each, d)
+        if (x['top'], x['left']) not in d:
+            d[(x['top'], x['left'])] = []
+        d[(x['top'], x['left'])].append(x)
         return d
 
     def nodecomparer(self, d1, d2):
