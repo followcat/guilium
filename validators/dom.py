@@ -71,16 +71,19 @@ class DomValidator(validators.base.BaseValidator):
             sut_dom = stack[sut.name][url][self.type]
             sut_info = self.nodefilter(sut_dom)
             results = self.nodecomparer(stub_info, sut_info)
-            with open('/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.json', 'w') as fp:
+            json_file = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.json'
+            with open(json_file, 'w') as fp:
                 json.dump(results, fp)
             driver = sut.engine.comm.driver
             self.markelements(driver, results)
             image_file = self.imagereport(results, sut, stub, url)
-            link = 'file://' + image_file
+            json_link = 'file://' + json_file
+            image_link = 'file://' + image_file
             if len(results) > 0:
                 raise validators.error.TestError("%d differences found in "
                             "positions %s... "
-                            "\nSee %s" %(len(results), results[0][0], link))
+                            "\nSee %s"
+                            "\n %s"%(len(results), results[0][0], json_link, image_link))
 
     def markelements(self, driver, results):
 
