@@ -36,26 +36,34 @@ class DomValidator(validators.base.BaseValidator):
             return (index_1, index_2, node[index_1][index_2]['height'],
                     node[index_1][index_2]['width'])
 
+        offsets = {'height': 0}
         for each in d1:
             if each == (None, None):
                 continue
             for index in range(len(d1[each])):
-                if each not in d2:
+                each2 = list(each)
+                each2[0] += offsets['height']
+                each2 = tuple(each2)
+                if each2 not in d2:
                     results.append(node_details(d1, each, index))
                     continue
                 else:
                     try:
-                        if (d1[each][index]['width'] != d2[each][index]['width'] or
-                            d1[each][index]['height'] != d2[each][index]['height']):
+                        node1 = d1[each][index]
+                        node2 = d2[each2][index]
+                        if (node1['width'] != node2['width'] or
+                            node1['height'] != node2['height']):
+                            offsets['height'] += \
+                                node2['height'] - node1['height']
                             results.append(node_details(d1, each, index))
                             break
-                        for s in d1[each][index]['style']:
-                            if d1[each][index]['style'][s] != d2[each][index]['style'][s]:
+                        for s in node1['style']:
+                            if node1['style'][s] != node2['style'][s]:
                                 results.append(node_details(d1, each, index))
                                 break
                         if self.compare_text and \
-                            d1[each][index]['innerText'] != d2[each][index]['innerText']:
-                            if d1[each][index]['nodename'] in ['STYLE', 'SCRIPT']:
+                            node1['innerText'] != node2['innerText']:
+                            if node1['nodename'] in ['STYLE', 'SCRIPT']:
                                 continue
                             results.append(node_details(d1, each, index))
                     except IndexError:
