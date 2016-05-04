@@ -94,7 +94,6 @@ class DomValidator(validators.base.BaseValidator):
                             "\n %s"%(len(results), results[0][0], json_link, image_link))
 
     def markelements(self, driver, results):
-
         one_label = """
         function one_label(top, left, height, width) {
             d = document.createElement("div");
@@ -108,16 +107,14 @@ class DomValidator(validators.base.BaseValidator):
             return d;
         }
         """
+        all_labels = ""
         for each in results:
             top = str(each[0][0])
             left = str(each[0][1])
             height = str(each[2])
             width = str(each[3])
-            try:
-                driver.execute_script(one_label+"\none_label("+top+", "+left+","
-                                      +height+", "+width+");")
-            except Exception as e:
-                continue
+            all_labels += "\none_label("+top+", "+left+", "+height+", "+width+");"
+        driver.execute_script(one_label+all_labels)
 
     def imagereport(self, differences, sut, stub, url):
         sut_driver = sut.engine.comm.driver
