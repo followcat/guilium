@@ -1,10 +1,12 @@
 {
     "sut": [ {
         "platform": "mobile",
-        "name": "avd5.1_new"
+        "name": "avd5.1",
+        "udid": "emulator-5554"
     } ],
     "stub": {
         "platform": "mobile",
-        "name": "avd5.1"
+        "udid": "emulator-5556",
+        "name": "avd5.1_new"
     }
 }
