@@ -22,7 +22,10 @@ class BaseMata(object):
             last_moved = moved
             driver.execute_script('window.scrollTo(0, %d);' % (count*scroll_height))
             moved = driver.execute_script('return document.body.scrollTop') - last_moved
-            count += 1
             if last_moved > moved or (last_moved > 0 and moved == 0):
                 break
+            if count > 0 and moved == 0:
+                break
+            count += 1
+        driver.execute_script('window.scrollTo(0, 0);')
         return True
