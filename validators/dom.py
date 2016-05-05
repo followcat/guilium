@@ -14,61 +14,51 @@ class DomValidator(validators.base.BaseValidator):
         super(DomValidator, self).__init__()
         self.compare_text = compare_text
 
-    def nodefilter(self, node, d=None):
+    def nodefilter(self, node, l=None):
         x = dict(node)
         x.pop('attributes')
         x.pop('childNodes')
-        if d is None:
-            d = collections.OrderedDict()
+        if l is None:
+            l = []
         for each in node['attributes']:
-            self.nodefilter(each, d)
+            self.nodefilter(each, l)
         for each in node['childNodes']:
-            self.nodefilter(each, d)
-        if (x['top'], x['left']) not in d:
-            d[(x['top'], x['left'])] = []
-        d[(x['top'], x['left'])].append(x)
-        return d
+            self.nodefilter(each, l)
+        if x not in l:
+            l.append(x)
+        return l
 
     def nodecomparer(self, d1, d2):
         results = []
 
-        def node_details(node, index_1, index_2):
-            return (index_1, index_2, node[index_1][index_2]['height'],
-                    node[index_1][index_2]['width'])
+        def node_details(node):
+            return (node['top'], node['left'], node['height'], node['width'])
 
-        offsets = {'height': 0}
-        for each in d1:
-            if each == (None, None):
-                continue
-            for index in range(len(d1[each])):
-                each2 = list(each)
-                each2[0] += offsets['height']
-                each2 = tuple(each2)
-                if each2 not in d2:
-                    results.append(node_details(d1, each, index))
-                    continue
-                else:
-                    try:
-                        node1 = d1[each][index]
-                        node2 = d2[each2][index]
-                        if (node1['width'] != node2['width'] or
-                            node1['height'] != node2['height']):
-                            offsets['height'] += \
-                                node2['height'] - node1['height']
-                            results.append(node_details(d1, each, index))
-                            break
-                        for s in node1['style']:
-                            if node1['style'][s] != node2['style'][s]:
-                                results.append(node_details(d1, each, index))
-                                break
-                        if self.compare_text and \
-                            node1['innerText'] != node2['innerText']:
-                            if node1['nodename'] in ['STYLE', 'SCRIPT']:
-                                continue
-                            results.append(node_details(d1, each, index))
-                    except IndexError:
-                        results.append(node_details(d1, each, index))
-                        continue
+        def compare_node(node1, node2):
+            try:
+                if (node1['top'] != node2['top'] or 
+                    node1['left'] != node2['left'] or
+                    node1['width'] != node2['width'] or
+                    node1['height'] != node2['height']):
+                    results.append(node_details(node1))
+                    return
+                for s in node1['style']:
+                    if node1['style'][s] != node2['style'][s]:
+                        results.append(node_details(node1))
+                        return
+                if self.compare_text and \
+                    node1['innerText'] != node2['innerText']:
+                    if node1['nodename'] in ['STYLE', 'SCRIPT']:
+                        return
+                    results.append(node_details(node1))
+            except IndexError:
+                results.append(node_details(node1))
+                return
+
+        for index, node1 in enumerate(d1):
+            if index > len(d2):
+                results.append(node_details(node1))
+            compare_node(node1, d2[index])
         return results
 
     def validate(self, url, storage, suts, stub):
@@ -109,8 +99,8 @@ class DomValidator(validators.base.BaseValidator):
         """
         all_labels = ""
         for each in results:
-            top = str(each[0][0])
-            left = str(each[0][1])
+            top = str(each[0])
+            left = str(each[1])
             height = str(each[2])
             width = str(each[3])
             all_labels += "\none_label("+top+", "+left+", "+height+", "+width+");"
