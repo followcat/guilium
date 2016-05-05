@@ -11,7 +11,7 @@ samplemotor_nums = 0
 def index():
     return render_template('index.html')
 
-@app.route('/samplemotor')
+@app.route('/image')
 def samplemotor():
     global samplemotor_nums
     if samplemotor_nums%2 == 0:
@@ -21,7 +21,7 @@ def samplemotor():
     samplemotor_nums += 1
     return render_template('sample_motor.html', img_str=img_str)
 
-@app.route('/content')
+@app.route('/text')
 def contentindex():
     user_agent = request.headers.get('User-Agent')
     source = render_template('index.html')
@@ -29,12 +29,12 @@ def contentindex():
         return source.replace('showcasing', 'showcasiny')
     return source
 
-@app.route('/mod')
+@app.route('/textlayout')
 def modindex():
     source = render_template('index.html')
     user_agent = request.headers.get('User-Agent')
     if 'Nexus 5' in user_agent:
-        return source.replace('This is a template', 'This iis a template').replace('Bootstrap', 'Boo0ststrap')
+        return source.replace('This is a template', 'This iis a template').replace('Bootstrap', 'Boo0ststrap').replace("Primary", "Primmmmmmmmmmmary")
     return source
 
 if __name__ == '__main__':
