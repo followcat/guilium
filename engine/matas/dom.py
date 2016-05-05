@@ -88,13 +88,17 @@ class DomMata(engine.matas.base.BaseMata):
             'top': offset['top'],
             'left': offset['left'],
             'attributes': [],
-            'childNodes': []
+            'childNodes': [],
+            'parentNode': ''
         };
         try {
             node_info['style'] = css2json(window.getComputedStyle(node, null));
         } catch(error) {
             node_info['style'] = {};
         }
+        if (node.parentNode!=null) {
+            node_info['parentNode'] = node.parentNode.nodeName;
+        };
 
         if (node.attributes && node.attributes.length) {
             for (var i = 0; i < node.attributes.length; ++i)
