@@ -30,17 +30,25 @@ class DomValidator(validators.base.BaseValidator):
 
     def nodecomparer(self, d1, d2):
         results = []
+        offsets = {'top': 0}
 
         def node_details(node):
             return (node['top'], node['left'], node['height'], node['width'])
 
         def compare_node(node1, node2):
             try:
-                if (node1['top'] != node2['top'] or 
+                if node1['top'] is None and node2['top'] is None:
+                    return
+                if ((node1['top'] != node2['top']+offsets['top'] and \
+                        node1['top'] != node2['top']) or 
                     node1['left'] != node2['left'] or
                     node1['width'] != node2['width'] or
                     node1['height'] != node2['height']):
                     results.append(node_details(node1))
+                    if node1['top'] != node2['top']:
+                        offsets['top'] = node1['top'] - node2['top']
+                    else:
+                        offsets['top'] = 0
                     return
                 for s in node1['style']:
                     if node1['style'][s] != node2['style'][s]:
