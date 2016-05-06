@@ -51,10 +51,6 @@ class DomValidator(validators.base.BaseValidator):
 
         def compare_node(node1, node2):
             try:
-                if node1['top'] is None and node2['top'] is None:
-                    return
-                if node1['left'] is None and node2['left'] is None:
-                    return
                 if ((not fuzzy_equals(node1['top'], node2['top']+offsets['top'])) and \
                         (not fuzzy_equals(node1['top'], node2['top'])) or
                     not fuzzy_equals(node1['left'], node2['left']) or
