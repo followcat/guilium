@@ -99,14 +99,13 @@ class DomMata(engine.matas.base.BaseMata):
         if (node.parentNode!=null) {
             node_info['parentNode'] = node.parentNode.nodeName;
         };
-
-        if (node.attributes && node.attributes.length) {
-            for (var i = 0; i < node.attributes.length; ++i)
-                node_info.attributes.push(traverse_nodes (node.attributes.item(i)));
-        };
         if (node.childNodes && node.childNodes.length) {
-            for (var i = 0; i < node.childNodes.length; ++i)
+            for (var i = 0; i < node.childNodes.length; ++i) {
+                if (node.childNodes.item(i).nodeType == 2 | node.childNodes.item(i).nodeType == 3 | node.childNodes.item(i).nodeType == 8) {
+                    continue;
+                };
                 node_info.childNodes.push(traverse_nodes (node.childNodes.item(i)));
+            };
         };
         return node_info;
     } 
