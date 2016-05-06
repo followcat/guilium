@@ -1,4 +1,6 @@
 import json
+import difflib
+import hashlib
 import collections
 
 import Image
@@ -32,19 +34,33 @@ class DomValidator(validators.base.BaseValidator):
         results = []
         offsets = {'top': 0}
 
-        def node_details(node):
+        def fuzzy_equals(num1, num2, extra=5):
+            if not isinstance(num1, int) or not isinstance(num2, int):
+                return False
+            return num2 in range(num1-extra, num1+extra+1)
+
+        def node_details(node, node2=None):
+            if node2 is not None:
+                diffs = {'top': node['top']-node2['top'],
+                         'left': node['left']-node2['left'],
+                         'height': node['height']-node2['height'],
+                         'width': node['width']-node2['width'],
+                         'text': node['innerText']}
+                return (node['top'], node['left'], node['height'], node['width'], diffs)
             return (node['top'], node['left'], node['height'], node['width'])
 
         def compare_node(node1, node2):
             try:
                 if node1['top'] is None and node2['top'] is None:
                     return
-                if ((node1['top'] != node2['top']+offsets['top'] and \
-                        node1['top'] != node2['top']) or 
-                    node1['left'] != node2['left'] or
-                    node1['width'] != node2['width'] or
-                    node1['height'] != node2['height']):
-                    results.append(node_details(node1))
+                if node1['left'] is None and node2['left'] is None:
+                    return
+                if ((not fuzzy_equals(node1['top'], node2['top']+offsets['top'])) and \
+                        (not fuzzy_equals(node1['top'], node2['top'])) or
+                    not fuzzy_equals(node1['left'], node2['left']) or
+                    not fuzzy_equals(node1['width'], node2['width']) or
+                    not fuzzy_equals(node1['height'], node2['height'])):
+                    results.append(node_details(node1, node2))
                     if node1['top'] != node2['top']:
                         offsets['top'] = node1['top'] - node2['top']
                     else:
@@ -63,10 +79,19 @@ class DomValidator(validators.base.BaseValidator):
                 results.append(node_details(node1))
                 return
 
-        for index, node1 in enumerate(d1):
-            if index > len(d2):
-                results.append(node_details(node1))
-            compare_node(node1, d2[index])
+        d1_md5s = []
+        d2_md5s = []
+        for _e in d1:
+            id_str1 = str(_e['nodename']) + '--' + str(_e['class'])  + '--'+ str(_e['id']) + '--' + str(_e['parentNode'])
+            d1_md5s.append(hashlib.md5(id_str1).hexdigest())
+        for _e in d2:
+            id_str2 = str(_e['nodename']) + '--' + str(_e['class'])  + '--'+ str(_e['id']) + '--' + str(_e['parentNode'])
+            d2_md5s.append(hashlib.md5(id_str2).hexdigest())
+        sd = difflib.SequenceMatcher(None, d1_md5s, d2_md5s)
+        blocks = sd.get_matching_blocks()
+        for _b in blocks:
+            for index in range(_b.size):
+                compare_node(d1[_b.a+index], d2[_b.b+index])
         return results
 
     def validate(self, url, storage, suts, stub):
