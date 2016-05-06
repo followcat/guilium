@@ -89,9 +89,13 @@ class DomValidator(validators.base.BaseValidator):
             d2_md5s.append(hashlib.md5(id_str2).hexdigest())
         sd = difflib.SequenceMatcher(None, d1_md5s, d2_md5s)
         blocks = sd.get_matching_blocks()
+        last_stop_index = 0
         for _b in blocks:
+            for _i in range(last_stop_index, _b.a):
+                results.append(node_details(d1[_i]))
             for index in range(_b.size):
                 compare_node(d1[_b.a+index], d2[_b.b+index])
+            last_stop_index = _b.a + _b.size
         return results
 
     def validate(self, url, storage, suts, stub):
