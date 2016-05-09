@@ -4,6 +4,7 @@ import hashlib
 import collections
 
 import Image
+import ImageDraw
 
 import validators.base
 import validators.error
@@ -109,7 +110,6 @@ class DomValidator(validators.base.BaseValidator):
             sut_info = self.nodefilter(sut_dom)
             results = self.nodecomparer(stub_info, sut_info)
             driver = sut.engine.comm.driver
-            self.markelements(driver, results)
             image_file = self.imagereport(results, sut, stub, url)
             if len(results) > 0:
                 json_file = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.json'
@@ -122,43 +122,27 @@ class DomValidator(validators.base.BaseValidator):
                             "\nSee %s"
                             "\n %s"%(len(results), results[0][0], json_link, image_link))
 
-    def markelements(self, driver, results):
-        one_label = """
-        function one_label(top, left, height, width, color) {
-            d = document.createElement("div");
-            d.style.position="absolute";
-            d.style.top=top+"px";
-            d.style.left=left+"px";
-            d.style.width=width+"px";
-            d.style.height=height+"px";
-            d.style.border="2px dashed "+color;
-            document.body.appendChild(d);
-            return d;
-        }
-        """
-        all_labels = ""
+    def markelements(self, img, results):
+        drawer = ImageDraw.Draw(img)
         for each in results:
-            top = str(each[0])
-            left = str(each[1])
-            height = str(each[2])
-            width = str(each[3])
+            top, left, height, width = each[0], each[1], each[2], each[3]
+            button, right = top+height, left+width
             if each[4]:
-                all_labels += "\none_label("+top+", "+left+", "+height+", "+width+", 'green');"
+                drawer.rectangle((left, top, right, button), outline='green')
             else:
-                all_labels += "\none_label("+top+", "+left+", "+height+", "+width+", 'red');"
-        driver.execute_script(one_label+all_labels)
+                drawer.rectangle((left, top, right, button), outline='red')
 
     def imagereport(self, differences, sut, stub, url):
         sut_driver = sut.engine.comm.driver
         stub_driver = stub.engine.comm.driver
 
-        self.markelements(sut_driver, differences)
         if sut.engine.platform == 'mobile':
             sut_img_mata = engine.matas.image.WebviewImageMata()
         elif sut.engine.platform == 'desktop':
             sut_img_mata = engine.matas.image.DesktopImageMata()
         sut_img_mata.loaddriver(sut_driver)
         sutShot = sut_img_mata.screenshot()
+        self.markelements(sutShot, differences)
 
         if stub.engine.platform == 'mobile':
             stub_img_mata = engine.matas.image.WebviewImageMata()
