@@ -109,62 +109,47 @@ class DomValidator(validators.base.BaseValidator):
             sut_dom = stack[sut.name][url][self.type]
             sut_info = self.nodefilter(sut_dom)
             results = self.nodecomparer(stub_info, sut_info)
-            driver = sut.engine.comm.driver
-            image_file = self.imagereport(results, sut, stub, url)
-            if len(results) > 0:
-                json_file = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.json'
-                with open(json_file, 'w') as fp:
-                    json.dump(results, fp)
-                json_link = 'file://' + json_file
-                image_link = 'file://' + image_file
-                raise validators.error.TestError("%d differences found in "
-                            "positions %s... "
-                            "\nSee %s"
-                            "\n %s"%(len(results), results[0][0], json_link, image_link))
+            imagereport(results, storage, sut, stub, url)
 
-    def markelements(self, img, results):
-        drawer = ImageDraw.Draw(img)
-        for each in results:
-            top, left, height, width = each[0], each[1], each[2], each[3]
-            button, right = top+height, left+width
-            if each[4]:
-                drawer.rectangle((left, top, right, button), outline='green')
-            else:
-                drawer.rectangle((left, top, right, button), outline='red')
+def markelements(img, results):
+    drawer = ImageDraw.Draw(img)
+    for each in results:
+        top, left, height, width = each[0], each[1], each[2], each[3]
+        button, right = top+height, left+width
+        if each[4]:
+            drawer.rectangle((left, top, right, button), outline='green')
+        else:
+            drawer.rectangle((left, top, right, button), outline='red')
 
-    def imagereport(self, differences, sut, stub, url):
-        sut_driver = sut.engine.comm.driver
-        stub_driver = stub.engine.comm.driver
+def imagereport(differences, storage, sut, stub, url):
+    stack = storage.get()
+    sutShot = stack[sut.name][url]['image']
+    markelements(sutShot, differences)
+    stubShot = stack[stub.name][url]['image']
 
-        if sut.engine.platform == 'mobile':
-            sut_img_mata = engine.matas.image.WebviewImageMata()
-        elif sut.engine.platform == 'desktop':
-            sut_img_mata = engine.matas.image.DesktopImageMata()
-        sut_img_mata.loaddriver(sut_driver)
-        sutShot = sut_img_mata.screenshot()
-        self.markelements(sutShot, differences)
-
-        if stub.engine.platform == 'mobile':
-            stub_img_mata = engine.matas.image.WebviewImageMata()
-        elif stub.engine.platform == 'desktop':
-            stub_img_mata = engine.matas.image.DesktopImageMata()
-        stub_img_mata.loaddriver(stub_driver)
-        stubShot = stub_img_mata.screenshot()
-
-        sut_width, sut_height = sutShot.size
+    sut_width, sut_height = sutShot.size
+    stub_width, stub_height = stubShot.size
+    if stub_width > sut_width:
+        scale = float(sut_width)/float(stub_width)
+        stubShot = stubShot.resize((sut_width, int(stub_height*scale)))
         stub_width, stub_height = stubShot.size
-        if stub_width > sut_width:
-            scale = float(sut_width)/float(stub_width)
-            stubShot = stubShot.resize((sut_width, int(stub_height*scale)))
-            stub_width, stub_height = stubShot.size
-        elif stub_width < sut_width:
-            scale = float(stub_width)/float(sut_width)
-            sutShot = sutShot.resize((stub_width, int(sut_height*scale)))
-            sut_width, sut_height = sutShot.size
-        result_image = Image.new('RGBA', (sut_width+stub_width,
-                                          max(sut_height, stub_height)))
-        result_image.paste(sutShot, (0, 0))
-        result_image.paste(stubShot, (sut_width, 0))
-        img_file = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png'
-        result_image.save(img_file)
-        return img_file
+    elif stub_width < sut_width:
+        scale = float(stub_width)/float(sut_width)
+        sutShot = sutShot.resize((stub_width, int(sut_height*scale)))
+        sut_width, sut_height = sutShot.size
+    result_image = Image.new('RGBA', (sut_width+stub_width,
+                                      max(sut_height, stub_height)))
+    result_image.paste(sutShot, (0, 0))
+    result_image.paste(stubShot, (sut_width, 0))
+    img_file = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.png'
+    result_image.save(img_file)
+    if len(differences) > 0:
+        json_file = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut.name+'.json'
+        with open(json_file, 'w') as fp:
+            json.dump(differences, fp)
+        json_link = 'file://' + json_file
+        image_link = 'file://' + img_file
+        raise validators.error.TestError("%d differences found in "
+                    "positions %s... "
+                    "\nSee %s"
+                    "\n %s"%(len(differences), differences[0][0], json_link, image_link))
