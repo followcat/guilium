@@ -39,15 +39,15 @@ class DomValidator(validators.base.BaseValidator):
                 return False
             return num2 in range(num1-extra, num1+extra+1)
 
-        def node_details(node, node2=None):
+        def node_details(node, node2=None, extra=False):
             if node2 is not None:
                 diffs = {'top': node['top']-node2['top'],
                          'left': node['left']-node2['left'],
                          'height': node['height']-node2['height'],
                          'width': node['width']-node2['width'],
                          'text': node['innerText']}
-                return (node['top'], node['left'], node['height'], node['width'], diffs)
-            return (node['top'], node['left'], node['height'], node['width'])
+                return (node['top'], node['left'], node['height'], node['width'], extra, diffs)
+            return (node['top'], node['left'], node['height'], node['width'], extra)
 
         def compare_node(node1, node2):
             try:
@@ -87,13 +87,17 @@ class DomValidator(validators.base.BaseValidator):
 
         sd = difflib.SequenceMatcher(None, node_list_md5s(d1), node_list_md5s(d2))
         blocks = sd.get_matching_blocks()
-        last_stop_index = 0
+        last_stop_index_1 = 0
+        last_stop_index_2 = 0
         for _b in blocks:
-            for _i in range(last_stop_index, _b.a):
+            for _i in range(last_stop_index_1, _b.a):
                 results.append(node_details(d1[_i]))
+            for _i in range(last_stop_index_2, _b.b):
+                results.append(node_details(d2[_i], extra=True))
             for index in range(_b.size):
                 compare_node(d1[_b.a+index], d2[_b.b+index])
-            last_stop_index = _b.a + _b.size
+            last_stop_index_1 = _b.a + _b.size
+            last_stop_index_2 = _b.b + _b.size
         return results
 
     def validate(self, url, storage, suts, stub):
@@ -120,14 +124,14 @@ class DomValidator(validators.base.BaseValidator):
 
     def markelements(self, driver, results):
         one_label = """
-        function one_label(top, left, height, width) {
+        function one_label(top, left, height, width, color) {
             d = document.createElement("div");
             d.style.position="absolute";
             d.style.top=top+"px";
             d.style.left=left+"px";
             d.style.width=width+"px";
             d.style.height=height+"px";
-            d.style.border='2px dashed red';
+            d.style.border="2px dashed "+color;
             document.body.appendChild(d);
             return d;
         }
@@ -138,7 +142,10 @@ class DomValidator(validators.base.BaseValidator):
             left = str(each[1])
             height = str(each[2])
             width = str(each[3])
-            all_labels += "\none_label("+top+", "+left+", "+height+", "+width+");"
+            if each[4]:
+                all_labels += "\none_label("+top+", "+left+", "+height+", "+width+", 'green');"
+            else:
+                all_labels += "\none_label("+top+", "+left+", "+height+", "+width+", 'red');"
         driver.execute_script(one_label+all_labels)
 
     def imagereport(self, differences, sut, stub, url):
