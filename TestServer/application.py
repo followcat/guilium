@@ -11,6 +11,16 @@ samplemotor_nums = 0
 def index():
     return render_template('index.html')
 
+@app.route('/mismatch')
+def mismatch():
+    global samplemotor_nums
+    user_agent = request.headers.get('User-Agent')
+    if 'Nexus 5' in user_agent:
+        is_match = False
+    else:
+        is_match = True
+    return render_template('mismatch.html', is_match=is_match)
+
 @app.route('/image')
 def samplemotor():
     global samplemotor_nums
@@ -34,7 +44,7 @@ def modindex():
     source = render_template('index.html')
     user_agent = request.headers.get('User-Agent')
     if 'Nexus 5' in user_agent:
-        return source.replace('This is a template', 'This iis a template').replace('Bootstrap', 'Boo0ststrap').replace("Primary", "Primmmmmmmmmmmary")
+        return source.replace('This is a template', 'This iis a template').replace('Bootstrap', 'Boo0ststrap')
     return source
 
 if __name__ == '__main__':
