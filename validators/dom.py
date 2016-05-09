@@ -75,15 +75,17 @@ class DomValidator(validators.base.BaseValidator):
                 results.append(node_details(node1))
                 return
 
-        d1_md5s = []
-        d2_md5s = []
-        for _e in d1:
-            id_str1 = str(_e['nodename']) + '--' + str(_e['class'])  + '--'+ str(_e['id']) + '--' + str(_e['parentNode'])
-            d1_md5s.append(hashlib.md5(id_str1).hexdigest())
-        for _e in d2:
-            id_str2 = str(_e['nodename']) + '--' + str(_e['class'])  + '--'+ str(_e['id']) + '--' + str(_e['parentNode'])
-            d2_md5s.append(hashlib.md5(id_str2).hexdigest())
-        sd = difflib.SequenceMatcher(None, d1_md5s, d2_md5s)
+        def node_list_md5s(node_list):
+            md5_list = []
+            for _e in node_list:
+                id_str = str(_e['nodename']) + \
+                             '--' + str(_e['class']) + \
+                             '--' + str(_e['id']) + \
+                             '--' + str(_e['parentNode'])
+                md5_list.append(hashlib.md5(id_str).hexdigest())
+            return md5_list
+
+        sd = difflib.SequenceMatcher(None, node_list_md5s(d1), node_list_md5s(d2))
         blocks = sd.get_matching_blocks()
         last_stop_index = 0
         for _b in blocks:
