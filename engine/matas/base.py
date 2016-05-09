@@ -21,6 +21,7 @@ class BaseMata(object):
         while True:
             last_moved = moved
             driver.execute_script('window.scrollTo(0, %d);' % (count*scroll_height))
+            time.sleep(0.3)
             moved = driver.execute_script('return document.body.scrollTop') - last_moved
             if last_moved > moved or (last_moved > 0 and moved == 0):
                 break

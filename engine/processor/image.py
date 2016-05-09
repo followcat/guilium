@@ -75,8 +75,8 @@ def webviewfullscreen(driver, scroll_height, shotfunc, scale=1):
         last_moved = moved
         scrolled = driver.execute_script('return document.body.scrollTop')
         driver.execute_script('window.scrollTo(0, %d);' % (count*scroll_height))
+        time.sleep(0.5)
         moved = driver.execute_script('return document.body.scrollTop') - scrolled
-        time.sleep(1)
         png = shotfunc()
         screenshots.append(png)
         count += 1
