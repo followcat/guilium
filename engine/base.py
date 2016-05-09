@@ -11,10 +11,8 @@ class Engine(object):
     }
 
     mata_classes = {
-        'mobile':   [engine.matas.image.WebviewImageMata,
-                     engine.matas.dom.WebviewDomMata],
-        'desktop':  [engine.matas.image.DesktopImageMata,
-                     engine.matas.dom.DesktopDomMata]
+        'mobile':   [engine.matas.dom.WebviewDomMata],
+        'desktop':  [engine.matas.dom.DesktopDomMata]
     }
 
     def __init__(self, name, config):
