@@ -65,8 +65,17 @@ class Runtime(object):
             results = validator.validate(test.test_url, self.storage,
                                          self.suts.values(), self.stub)
             self.validate_results.set(test.test_url, results)
+        self.imagereport(test.test_url, self.stub)
 
-    def reportall(self):
+    def imagereport(self, test_url, stub):
+        stub_name = self.stub.name
+        tests_results = self.validate_results.get()
+        for sut_name in tests_results[test_url]:
+            result = tests_results[test_url][sut_name]
+            reportor.image.report(result, self.storage,
+                                   sut_name, stub_name, test_url)
+
+    def imagereportall(self):
         stub_name = self.stub.name
         tests_results = self.validate_results.get()
         for test_url in tests_results:

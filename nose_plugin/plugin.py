@@ -123,7 +123,6 @@ class TestRunner(nose.core.TextTestRunner):
         runtime.start_test()
         setattr(test.config, 'runtime', runtime)
         test(result)
-        runtime.reportall()
         runtime.stop_test()
 
         #from father class code
