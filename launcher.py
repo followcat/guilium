@@ -8,6 +8,7 @@ import core.application
 import core.communication
 import validators.dom
 import validators.image
+import reportor.image
 
 
 class Runtime(object):
@@ -17,6 +18,7 @@ class Runtime(object):
         self.suts = {}
         self.stub = None
         self.storage = core.storage.Storage()
+        self.validate_results = core.storage.Storage()
         self.communication_cls = core.communication.Communication
         self.setup_environment()
         self.validators = [validators.dom.DomValidator()]
@@ -60,5 +62,16 @@ class Runtime(object):
             else:
                 break
         for validator in self.validators:
-            validator.validate(test.test_url, self.storage,
-                self.suts.values(), self.stub)
+            results = validator.validate(test.test_url, self.storage,
+                                         self.suts.values(), self.stub)
+            self.validate_results.set(test.test_url, results)
+
+    def reportall(self):
+        stub_name = self.stub.name
+        tests_results = self.validate_results.get()
+        for test_url in tests_results:
+            for sut_name in tests_results[test_url]:
+                result = tests_results[test_url][sut_name]
+                reportor.image.report(result, self.storage,
+                                       sut_name, stub_name, test_url)
+
