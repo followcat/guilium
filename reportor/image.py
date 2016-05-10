@@ -2,7 +2,7 @@ import json
 
 import Image
 import ImageDraw
-import validators.error
+import validator.error
 
 
 def markelements(img, results):
@@ -43,7 +43,7 @@ def report(differences, storage, sut_name, stub_name, url):
             json.dump(differences, fp)
         json_link = 'file://' + json_file
         image_link = 'file://' + img_file
-        raise validators.error.TestError("%d differences found in "
+        raise validator.error.TestError("%d differences found in "
                     "positions %s... "
                     "\nSee %s"
                     "\n %s"%(len(differences), differences[0][0], json_link, image_link))

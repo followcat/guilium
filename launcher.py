@@ -6,8 +6,8 @@ import core.storage
 import core.component
 import core.application
 import core.communication
-import validators.dom
-import validators.image
+import validator.dom
+import validator.image
 import reportor.image
 
 
@@ -21,7 +21,7 @@ class Runtime(object):
         self.validate_results = core.storage.Storage()
         self.communication_cls = core.communication.Communication
         self.setup_environment()
-        self.validators = [validators.dom.DomValidator()]
+        self.validator = [validator.dom.DomValidator()]
 
     def setup_environment(self):
         for sut in self.config['sut']:
@@ -61,7 +61,7 @@ class Runtime(object):
                     break
             else:
                 break
-        for validator in self.validators:
+        for validator in self.validator:
             results = validator.validate(test.test_url, self.storage,
                                          self.suts.values(), self.stub)
             self.validate_results.set(test.test_url, results)

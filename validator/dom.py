@@ -1,11 +1,11 @@
 import difflib
 import hashlib
 
-import validators.base
-import validators.error
+import validator.base
+import validator.error
 
 
-class DomValidator(validators.base.BaseValidator):
+class DomValidator(validator.base.BaseValidator):
 
     def __init__(self, compare_text=False):
         super(DomValidator, self).__init__()
