@@ -6,8 +6,9 @@ import core.storage
 import core.component
 import core.application
 import core.communication
-import validators.dom
-import validators.image
+import validator.dom
+import validator.image
+import reportor.image
 
 
 class Runtime(object):
@@ -17,9 +18,10 @@ class Runtime(object):
         self.suts = {}
         self.stub = None
         self.storage = core.storage.Storage()
+        self.validate_results = core.storage.Storage()
         self.communication_cls = core.communication.Communication
         self.setup_environment()
-        self.validators = [validators.dom.DomValidator()]
+        self.validator = [validator.dom.DomValidator()]
 
     def setup_environment(self):
         for sut in self.config['sut']:
@@ -59,6 +61,26 @@ class Runtime(object):
                     break
             else:
                 break
-        for validator in self.validators:
-            validator.validate(test.test_url, self.storage,
-                self.suts.values(), self.stub)
+        for validator in self.validator:
+            results = validator.validate(test.test_url, self.storage,
+                                         self.suts.values(), self.stub)
+            self.validate_results.set(test.test_url, results)
+        self.imagereport(test.test_url, self.stub)
+
+    def imagereport(self, test_url, stub):
+        stub_name = self.stub.name
+        tests_results = self.validate_results.get()
+        for sut_name in tests_results[test_url]:
+            result = tests_results[test_url][sut_name]
+            reportor.image.report(result, self.storage,
+                                   sut_name, stub_name, test_url)
+
+    def imagereportall(self):
+        stub_name = self.stub.name
+        tests_results = self.validate_results.get()
+        for test_url in tests_results:
+            for sut_name in tests_results[test_url]:
+                result = tests_results[test_url][sut_name]
+                reportor.image.report(result, self.storage,
+                                       sut_name, stub_name, test_url)
+

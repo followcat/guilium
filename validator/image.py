@@ -3,11 +3,11 @@ import math
 from PIL import Image
 from PIL import ImageChops
 
-import validators.base
-import validators.error
+import validator.base
+import validator.error
 
 
-class ImageValidator(validators.base.BaseValidator):
+class ImageValidator(validator.base.BaseValidator):
     """"""
 
     def rmsdiff_2011(self, im1, im2):
@@ -33,10 +33,10 @@ class ImageValidator(validators.base.BaseValidator):
         pix2 = im2.load()
 
         if im1.mode != im2.mode:
-            raise validators.error.TestError("Different pixel modes between \
+            raise validator.error.TestError("Different pixel modes between \
                     im1 and im2")
         if im1.size != im2.size:
-            raise validators.error.TestError("Different dimensions between \
+            raise validator.error.TestError("Different dimensions between \
                     im1 (%r) and im2 (%r)" % (im1.size, im2.size))
 
         mode = im1.mode
