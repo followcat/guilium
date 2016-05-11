@@ -1,3 +1,4 @@
+import os
 import json
 
 import Image
@@ -41,6 +42,9 @@ def report(differences, storage, sut_name, stub_name, url):
         return
     init_y1 = differences[0][0]
     init_y2 = differences[0][0] + differences[0][2]
+    piece_dir = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut_name
+    if not os.path.exists(piece_dir):
+        os.mkdir(piece_dir)
     for _index, diff in enumerate(differences):
         if diff[0] < init_y1 or diff[2] > 400 or diff[2] == 0:
             continue
@@ -49,14 +53,13 @@ def report(differences, storage, sut_name, stub_name, url):
         if diff[0] > init_y2 +100:
             img_piece = result_image.crop((0, init_y1-20,
                             result_image.size[0], init_y2+20))
-            img_piece.save('/tmp/diff/image_piece_%s.png'
-                            %str((0, init_y1)))
+            img_piece.save(piece_dir + '/image_piece_%s.png'%str((0, init_y1)))
             init_y1 = diff[0]
         if diff[0] + diff[2] > init_y2:
             init_y2 = diff[0] + diff[2]
     img_piece = result_image.crop((0, init_y1-20,
                     result_image.size[0], init_y2+20))
-    img_piece.save('/tmp/diff/image_piece_%s.png'%str((0, init_y1)))
+    img_piece.save(piece_dir + '/image_piece_%s.png'%str((0, init_y1)))
 
     if len(differences) > 0:
         json_file = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut_name+'.json'
@@ -66,5 +69,11 @@ def report(differences, storage, sut_name, stub_name, url):
         image_link = 'file://' + img_file
         raise validator.error.TestError("%d differences found in "
                     "positions %s... "
-                    "\nSee %s"
-                    "\n %s"%(len(differences), differences[0][0], json_link, image_link))
+                    "\nSee differences %s"
+                    "\nFull Image %s"
+                    "\nDifference Image Pieces %s"
+                    %(len(differences),
+                      differences[0][0],
+                      json_link,
+                      image_link,
+                      'file://' + piece_dir))
