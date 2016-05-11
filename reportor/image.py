@@ -37,6 +37,27 @@ def report(differences, storage, sut_name, stub_name, url):
     result_image.paste(stubShot, (sut_width, 0))
     img_file = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut_name+'.png'
     result_image.save(img_file)
+    if len(differences) == 0:
+        return
+    init_y1 = differences[0][0]
+    init_y2 = differences[0][0] + differences[0][2]
+    for _index, diff in enumerate(differences):
+        if diff[0] < init_y1 or diff[2] > 400 or diff[2] == 0:
+            continue
+        if diff[0] < init_y1:
+            init_y1 = diff[0]
+        if diff[0] > init_y2 +100:
+            img_piece = result_image.crop((0, init_y1-20,
+                            result_image.size[0], init_y2+20))
+            img_piece.save('/tmp/diff/image_piece_%s.png'
+                            %str((0, init_y1)))
+            init_y1 = diff[0]
+        if diff[0] + diff[2] > init_y2:
+            init_y2 = diff[0] + diff[2]
+    img_piece = result_image.crop((0, init_y1-20,
+                    result_image.size[0], init_y2+20))
+    img_piece.save('/tmp/diff/image_piece_%s.png'%str((0, init_y1)))
+
     if len(differences) > 0:
         json_file = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut_name+'.json'
         with open(json_file, 'w') as fp:
