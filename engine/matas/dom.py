@@ -28,6 +28,14 @@ class DomMata(engine.matas.base.BaseMata):
         return dom_dict;
     }
 
+    function unDisplay(e) {
+        var pos = window.getComputedStyle(e, null).position;
+        if(pos=='fixed') {
+            return true;
+        }
+        else return false;
+    }
+
     function getTop(e) { 
         var offset=e.offsetTop; 
         if(e.offsetParent!=null) offset+=getTop(e.offsetParent); 
@@ -104,6 +112,9 @@ class DomMata(engine.matas.base.BaseMata):
                 if (node.childNodes.item(i).nodeType == 2 | node.childNodes.item(i).nodeType == 3 | node.childNodes.item(i).nodeType == 8) {
                     continue;
                 };
+                if (unDisplay(node.childNodes.item(i))) {
+                    continue;
+                }
                 node_info.childNodes.push(traverse_nodes (node.childNodes.item(i)));
             };
         };
