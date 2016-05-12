@@ -7,6 +7,22 @@ from engine.processor.image import get_contain, get_webview, location, bounds, s
 
 class ImageMata(engine.matas.base.BaseMata):
 
+    jscodes = """
+        function unDisplay (node) {
+            if (window.getComputedStyle(node, null)) {
+                var pos = window.getComputedStyle(node, null).position;
+                if(pos=='fixed') node.style.display='none';
+            };
+            if (node.childNodes && node.childNodes.length) {
+                for (var i = 0; i < node.childNodes.length; ++i) {
+                    unDisplay (node.childNodes.item(i));
+                };
+            };
+        }
+        var node = document.body;
+        unDisplay(node);
+        """
+
     @property
     def WIDTH(self):
         screen_width = self.driver.execute_script('return window.screen.width')
@@ -33,6 +49,9 @@ class ImageMata(engine.matas.base.BaseMata):
     @property
     def SCALE(self):
         return 1
+
+    def preprocess(self):
+        self.driver.execute_script(self.jscodes)
 
     def loaddriver(self, driver):
         self.driver = driver
@@ -78,6 +97,11 @@ class WebviewImageMata(ImageMata):
 
     def shotfunc(self):
         self.driver.switch_to.context('NATIVE_APP')
+        self.proprocess()
+        self.driver.switch_to.context('CHROMIUM')
+
+    def shotfunc(self):
+        self.driver.switch_to.context('NATIVE_APP')
         png = self.driver.get_screenshot_as_png()
         self.driver.switch_to.context('CHROMIUM')
         return png
@@ -108,5 +132,6 @@ class DesktopImageMata(ImageMata):
     def process(self, url, driver):
         self.loaddriver(driver)
         self.driver.get(url)
+        self.preprocess()
         fullscreen = self.screenshot()
         return fullscreen
