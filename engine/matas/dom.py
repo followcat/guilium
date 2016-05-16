@@ -53,6 +53,7 @@ class DomMata(engine.matas.base.BaseMata):
         var l = e.offsetLeft;
         var w = e.offsetWidth;
         var h = e.offsetHeight;
+        var mh = parseInt(window.getComputedStyle(e, null).marginTop) + parseInt(window.getComputedStyle(e, null).marginBottom);
 
         while(e=e.offsetParent) {
             t+=e.offsetTop;
@@ -62,7 +63,8 @@ class DomMata(engine.matas.base.BaseMata):
             top : t,
             left : l,
             width : w,
-            height : h
+            height : h,
+            marginheight : mh
         }
     }
 
@@ -80,6 +82,16 @@ class DomMata(engine.matas.base.BaseMata):
         return s;
     }
 
+    function parentNodeName (node)
+    {
+        if (node.parentNode!=null) {
+            var parentName = parentNodeName (node.parentNode);
+            parentName += '-' + node.parentNode.className;
+            return parentName
+        }
+        else return '';
+    }
+
     function traverse_nodes (node)
     {
         var offset = getElementOffset(node)
@@ -95,18 +107,16 @@ class DomMata(engine.matas.base.BaseMata):
             'width': offset['width'],
             'top': offset['top'],
             'left': offset['left'],
+            'marginheight': offset['marginheight'],
             'attributes': [],
             'childNodes': [],
-            'parentNode': ''
+            'parentNode': parentNodeName (node)
         };
         try {
             node_info['style'] = css2json(window.getComputedStyle(node, null));
         } catch(error) {
             node_info['style'] = {};
         }
-        if (node.parentNode!=null) {
-            node_info['parentNode'] = node.parentNode.nodeName;
-        };
         if (node.childNodes && node.childNodes.length) {
             for (var i = 0; i < node.childNodes.length; ++i) {
                 if (node.childNodes.item(i).nodeType == 2 | node.childNodes.item(i).nodeType == 3 | node.childNodes.item(i).nodeType == 8) {
