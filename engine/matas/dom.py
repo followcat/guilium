@@ -29,7 +29,11 @@ class DomMata(engine.matas.base.BaseMata):
     }
 
     function unDisplay(e) {
-        var pos = window.getComputedStyle(e, null).position;
+        try {
+            var pos = window.getComputedStyle(e, null).position;
+        } catch(error) {
+            var pos = 'notfixed';
+        }
         if(pos=='fixed') {
             return true;
         }
@@ -53,7 +57,11 @@ class DomMata(engine.matas.base.BaseMata):
         var l = e.offsetLeft;
         var w = e.offsetWidth;
         var h = e.offsetHeight;
-        var mh = parseInt(window.getComputedStyle(e, null).marginTop) + parseInt(window.getComputedStyle(e, null).marginBottom);
+        try {
+            var mh = parseInt(window.getComputedStyle(e, null).marginTop) + parseInt(window.getComputedStyle(e, null).marginBottom);
+        } catch(error) {
+            var mh = '0px';
+        }
 
         while(e=e.offsetParent) {
             t+=e.offsetTop;
@@ -86,7 +94,7 @@ class DomMata(engine.matas.base.BaseMata):
     {
         if (node.parentNode!=null) {
             var parentName = parentNodeName (node.parentNode);
-            parentName += '-' + node.parentNode.className;
+            parentName += '<SEP>' + node.className;
             return parentName
         }
         else return '';

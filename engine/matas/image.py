@@ -9,10 +9,13 @@ class ImageMata(engine.matas.base.BaseMata):
 
     jscodes = """
         function unDisplay (node) {
-            if (window.getComputedStyle(node, null)) {
-                var pos = window.getComputedStyle(node, null).position;
-                if(pos=='fixed') node.style.display='none';
-            };
+            try {
+                if (window.getComputedStyle(node, null)) {
+                    var pos = window.getComputedStyle(node, null).position;
+                    if(pos=='fixed') node.style.display='none';
+                };
+            } catch(error) {
+            }
             if (node.childNodes && node.childNodes.length) {
                 for (var i = 0; i < node.childNodes.length; ++i) {
                     unDisplay (node.childNodes.item(i));
