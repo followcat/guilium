@@ -19,7 +19,11 @@ def mismatch():
         is_match = False
     else:
         is_match = True
-    return render_template('mismatch.html', is_match=is_match)
+    if 'Nexus 5' in user_agent:
+        return render_template('mismatch.html', is_match=is_match).replace('This is a template', 'This iis a template').replace('Primary', 'Primmmmmmmmmmmmmmmary').replace('Bootstrap', 'Boo0ststrap')
+    else:
+        return render_template('mismatch.html', is_match=is_match)
+
 
 @app.route('/image')
 def samplemotor():
@@ -44,7 +48,7 @@ def modindex():
     source = render_template('index.html')
     user_agent = request.headers.get('User-Agent')
     if 'Nexus 5' in user_agent:
-        return source.replace('This is a template', 'This iis a template').replace('Bootstrap', 'Boo0ststrap')
+        return source.replace('This is a template', 'This iis a template').replace('Primary', 'Primmmmmmmmmmmmmmmary').replace('Bootstrap', 'Boo0ststrap')
     return source
 
 if __name__ == '__main__':
