@@ -1,0 +1,16 @@
+{
+    "sut": [ 
+        {
+        "platform": "desktop",
+        "name": "Galaxy_S4",
+        "device name": "Samsung Galaxy S4",
+        "host": "10.0.0.118"
+        }
+    ],
+    "stub": {
+        "platform": "desktop",
+        "name": "Nexus_5",
+        "device name": "Google Nexus 5",
+        "host": "10.0.0.118"
+    }
+}
