@@ -34,15 +34,15 @@ class DomValidator(validator.base.BaseValidator):
                 return False
             return num2 in range(num1-extra, num1+extra+1)
 
-        def node_details(node, node2=None, extra=False):
+        def node_details(node, node2=None, diff_type='unmatch'):
             if node2 is not None:
                 diffs = {'top': node['top']-node2['top'],
                          'left': node['left']-node2['left'],
                          'height': node['height']-node2['height'],
                          'width': node['width']-node2['width'],
                          'text': node['innerText']}
-                return (node['top'], node['left'], node['height'], node['width'], extra, diffs)
-            return (node['top'], node['left'], node['height'], node['width'], extra)
+                return (node['top'], node['left'], node['height'], node['width'], node['marginheight'], diff_type, diffs)
+            return (node['top'], node['left'], node['height'], node['width'], node['marginheight'], diff_type)
 
         def compare_node(node1, node2):
             try:
@@ -51,7 +51,7 @@ class DomValidator(validator.base.BaseValidator):
                     not fuzzy_equals(node1['left'], node2['left']) or
                     not fuzzy_equals(node1['width'], node2['width']) or
                     not fuzzy_equals(node1['height'], node2['height'])):
-                    results.append(node_details(node1, node2))
+                    results.append(node_details(node1, node2, diff_type='unmatch'))
                     if node1['top'] != node2['top']:
                         offsets['top'] = node1['top'] - node2['top']
                     else:
@@ -86,9 +86,9 @@ class DomValidator(validator.base.BaseValidator):
         last_stop_index_2 = 0
         for _b in blocks:
             for _i in range(last_stop_index_1, _b.a):
-                results.append(node_details(d1[_i]))
+                results.append(node_details(d1[_i], diff_type='miss'))
             for _i in range(last_stop_index_2, _b.b):
-                results.append(node_details(d2[_i], extra=True))
+                results.append(node_details(d2[_i], diff_type='extra'))
             for index in range(_b.size):
                 compare_node(d1[_b.a+index], d2[_b.b+index])
             last_stop_index_1 = _b.a + _b.size
