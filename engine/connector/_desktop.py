@@ -8,7 +8,6 @@ class DesktopConnector(engine.connector.base.Connector):
 
     def __init__(self, config):
         super(DesktopConnector, self).__init__(config)
-        device_name = self.config['device name']
         self.command_executor = None
         if 'host' in self.config:
             host = self.config['host']
@@ -17,17 +16,31 @@ class DesktopConnector(engine.connector.base.Connector):
             else:
                 port = '4444'
             self.command_executor = 'http://%s:%s/wd/hub'%(host, port)
-        mobile_emulation = {"deviceName": device_name} 
-        self.options = selenium.webdriver.chrome.options.Options()
-        self.options.add_experimental_option("mobileEmulation", mobile_emulation)
 
     def start(self):
-        if self.command_executor is None:
-            self.driver = \
-                selenium.webdriver.Chrome(chrome_options=self.options)
+        if 'browser name' in self.config and self.config['browser name'] == 'IE':
+            self.driver = self.start_ie()
+        elif 'device name' in self.config:
+            self.driver = self.start_chrome(emulation=True)
         else:
-            self.driver = selenium.webdriver.Remote(command_executor=self.command_executor, desired_capabilities=self.options.to_capabilities())
+            self.driver = self.start_chrome()
         self.driver.maximize_window()
+
+    def start_ie(self):
+        desired_caps = selenium.webdriver.DesiredCapabilities.INTERNETEXPLORER
+        driver = selenium.webdriver.Remote(command_executor=self.command_executor, desired_capabilities=desired_caps)
+        return driver
+
+    def start_chrome(self, emulation=False):
+        options = selenium.webdriver.chrome.options.Options()
+        if emulation:
+            mobile_emulation = {"deviceName": self.config['device name']} 
+            options.add_experimental_option("mobileEmulation", mobile_emulation)
+        if self.command_executor is None:
+            driver = selenium.webdriver.Chrome(chrome_options=options)
+        else:
+            driver = selenium.webdriver.Remote(command_executor=self.command_executor, desired_capabilities=options.to_capabilities())
+        return driver
 
     def stop(self):
         self.driver.quit()
