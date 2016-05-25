@@ -63,7 +63,7 @@ def get_webview(driver):
     results = sorted(allview(xmlobj), key=lambda each: area(each), reverse=True)
     return results[0]
 
-def webviewfullscreen(driver, scroll_height, shotfunc, scale=1):
+def webviewfullscreen(driver, scroll_height, shotfunc, scale=1, page_limit=20):
     """"""
     screenshots = []
     driver.execute_script('window.scrollTo(0, 0);')
@@ -71,7 +71,7 @@ def webviewfullscreen(driver, scroll_height, shotfunc, scale=1):
 
     moved = 0
     count = 0
-    while True:
+    while count < page_limit:
         last_moved = moved
         driver.execute_script('window.scrollTo(0, %d);' % (count*scroll_height))
         time.sleep(0.5)
