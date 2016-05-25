@@ -100,11 +100,6 @@ class WebviewImageMata(ImageMata):
 
     def shotfunc(self):
         self.driver.switch_to.context('NATIVE_APP')
-        self.proprocess()
-        self.driver.switch_to.context('CHROMIUM')
-
-    def shotfunc(self):
-        self.driver.switch_to.context('NATIVE_APP')
         png = self.driver.get_screenshot_as_png()
         self.driver.switch_to.context('CHROMIUM')
         return png
