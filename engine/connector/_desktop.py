@@ -36,6 +36,9 @@ class DesktopConnector(engine.connector.base.Connector):
         if emulation:
             mobile_emulation = {"deviceName": self.config['device name']} 
             options.add_experimental_option("mobileEmulation", mobile_emulation)
+        if 'user data dir' in self.config:
+                user_data_dir = self.config['user data dir']
+                options.add_argument('--user-data-dir=%s'%user_data_dir)
         if self.command_executor is None:
             driver = selenium.webdriver.Chrome(chrome_options=options)
         else:
