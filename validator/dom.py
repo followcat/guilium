@@ -75,7 +75,6 @@ class DomValidator(validator.base.BaseValidator):
             for _e in node_list:
                 id_str = str(_e['nodename']) + \
                              '--' + str(_e['class']) + \
-                             '--' + str(_e['id']) + \
                              '--' + str(_e['parentNode'])
                 md5_list.append(hashlib.md5(id_str).hexdigest())
             return md5_list
