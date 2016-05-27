@@ -14,9 +14,13 @@ import reportor.image
 class Runtime(object):
     """"""
     def __init__(self, config_file):
-        self.config = json.load(open(config_file))
         self.suts = {}
         self.stub = None
+        try:
+            self.config = json.load(open(config_file))
+        except ValueError:
+            config_content = open(config_file).read()
+            self.config = json.loads(config_content.replace('\\', '\\\\'))
         self.storage = core.storage.Storage()
         self.validate_results = core.storage.Storage()
         self.communication_cls = core.communication.Communication
