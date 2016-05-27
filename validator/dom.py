@@ -7,9 +7,10 @@ import validator.error
 
 class DomValidator(validator.base.BaseValidator):
 
-    def __init__(self, compare_text=False):
+    def __init__(self, compare_text=False, compare_style=False):
         super(DomValidator, self).__init__()
         self.compare_text = compare_text
+        self.compare_style = compare_style
 
     def nodefilter(self, node, l=None):
         x = dict(node)
@@ -35,7 +36,7 @@ class DomValidator(validator.base.BaseValidator):
             return num2 in range(num1-extra, num1+extra+1)
 
         def node_details(node, node2=None, diff_type='unmatch'):
-            if node2 is not None:
+            if node2 is not None and diff_type == 'unmatch':
                 diffs = {'top': node['top']-node2['top'],
                          'left': node['left']-node2['left'],
                          'height': node['height']-node2['height'],
@@ -57,10 +58,11 @@ class DomValidator(validator.base.BaseValidator):
                     else:
                         offsets['top'] = 0
                     return
-                for s in node1['style']:
-                    if node1['style'][s] != node2['style'][s]:
-                        results.append(node_details(node1))
-                        return
+                if self.compare_style:
+                    for s in node1['style']:
+                        if node1['style'][s] != node2['style'][s]:
+                            results.append(node_details(node1))
+                            return
                 if self.compare_text and \
                     node1['innerText'] != node2['innerText']:
                     if node1['nodename'] in ['STYLE', 'SCRIPT']:
