@@ -39,8 +39,6 @@ def markelements(img, results):
             drawer.rectangle((left, top, right, bottom), outline='red')
 
 def report(differences, storage, sut_name, stub_name, url):
-    if len(differences) == 0:
-        return
     stack = storage.get()
     sutShot = stack[sut_name][url]['image']
     stubShot = stack[stub_name][url]['image']
@@ -55,6 +53,17 @@ def report(differences, storage, sut_name, stub_name, url):
         scale = float(stub_width)/float(sut_width)
         sutShot = sutShot.resize((stub_width, int(sut_height*scale)))
         sut_width, sut_height = sutShot.size
+    #limit differences with 1 page
+    limit_diffs = []
+    for diff in differences:
+        if diff[0] + diff[2] > sut_height:
+            continue
+        if diff[0] + diff[1] + diff[2] + diff[3] == 0:
+            continue
+        limit_diffs.append(diff)
+    differences = limit_diffs
+    if len(differences) == 0:
+        return
     #paste sut and stub with gaps
     count_offsets = count_offset(differences)
     sut_crop_paste, stub_crop_paste, full_height = \
