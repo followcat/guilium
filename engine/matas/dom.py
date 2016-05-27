@@ -76,6 +76,31 @@ class DomMata(engine.matas.base.BaseMata):
         }
     }
 
+    function toRGB(str){
+        var reg = /#[0-9a-fA-F]{3,6}/;
+        if (!reg.test(str)) {
+            return str
+        }
+        match_list = str.match(reg)
+        for (var i in match_list) {
+            sub_str = match_list[i];
+            var replace_str = sub_str;
+            if(sub_str.length == 4 || sub_str.length == 7){
+                if(sub_str.length == 4){
+                    replace_str = replace_str + replace_str.slice(1);
+                }
+                var n = replace_str.slice(1);
+                var arr = new Array();
+                arr[0] = parseInt(n.slice(0,2),16);
+                arr[1] = parseInt(n.slice(2,4),16);
+                arr[2] = parseInt(n.slice(4,6),16); 
+                replace_str = 'rgb(' + arr.join(', ') + ")";
+                str = str.replace(sub_str, replace_str);
+            }
+        }
+        return str
+    }
+
     function css2json(css) {
         var s = {};
         if (css == null) {
@@ -100,6 +125,25 @@ class DomMata(engine.matas.base.BaseMata):
         else return '';
     }
 
+    function styleInfo (node)
+    {
+        var style_info = {};
+        try {
+            if (node.currentStyle) {
+                current_style = node.currentStyle;
+                for (var i in current_style) {
+                    var key = current_style[i];
+                    style_info[i] = toRGB(key);
+                }
+            }
+            else {
+                style_info = window.getComputedStyle(node, null);
+            }
+        } catch(error) {}
+        return style_info;
+    }
+
+
     function traverse_nodes (node)
     {
         var offset = getElementOffset(node)
@@ -120,11 +164,9 @@ class DomMata(engine.matas.base.BaseMata):
             'childNodes': [],
             'parentNode': parentNodeName (node)
         };
-        try {
-            node_info['style'] = css2json(window.getComputedStyle(node, null));
-        } catch(error) {
-            node_info['style'] = {};
-        }
+
+        node_info['style'] = css2json(styleInfo(node));
+
         if (node.childNodes && node.childNodes.length) {
             for (var i = 0; i < node.childNodes.length; ++i) {
                 if (node.childNodes.item(i).nodeType == 2 | node.childNodes.item(i).nodeType == 3 | node.childNodes.item(i).nodeType == 8) {
