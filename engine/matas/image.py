@@ -64,8 +64,14 @@ class ImageMata(engine.matas.base.BaseMata):
         return png
 
     def screenshot(self):
-        screenshots, last_moved = webviewfullscreen(self.driver, self.SCROLLHEIGHT,
-                                                    self.shotfunc, self.SCALE)
+        if self.driver.name == "internet explorer":
+            screenshots, last_moved = \
+                webviewfullscreen(self.driver, self.SCROLLHEIGHT,
+                                  self.shotfunc, self.SCALE, page_limit=1)
+        else:
+            screenshots, last_moved = \
+                webviewfullscreen(self.driver, self.SCROLLHEIGHT,
+                                  self.shotfunc, self.SCALE)
         fullscreen = fullimage(screenshots, self.X, self.Y,
                                self.WIDTH, self.HEIGHT,
                                last_moved)

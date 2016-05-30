@@ -63,7 +63,7 @@ def get_webview(driver):
     results = sorted(allview(xmlobj), key=lambda each: area(each), reverse=True)
     return results[0]
 
-def webviewfullscreen(driver, scroll_height, shotfunc, scale=1, page_limit=1):
+def webviewfullscreen(driver, scroll_height, shotfunc, scale=1, page_limit=20):
     """"""
     screenshots = []
     driver.execute_script('window.scrollTo(0, 0);')
@@ -71,12 +71,11 @@ def webviewfullscreen(driver, scroll_height, shotfunc, scale=1, page_limit=1):
 
     moved = 0
     count = 0
-    last_moved = 0
     while count < page_limit:
+        last_moved = moved
         driver.execute_script('window.scrollTo(0, %d);' % (count*scroll_height))
         time.sleep(0.5)
         moved = scroll_top(driver) - last_moved
-        last_moved = moved
         png = shotfunc()
         screenshots.append(png)
         count += 1
@@ -91,6 +90,11 @@ def scroll_top(driver):
     
 
 def fullimage(screenshots, x, y, width, height, last_moved):
+    if len(screenshots) == 1:
+        img = Image.open(StringIO.StringIO(screenshots[0]))
+        result_image = Image.new('RGBA', img.size)
+        result_image.paste(img, (0, 0))
+        return result_image
     cimgs = []
     for each in range(len(screenshots)):
         img = Image.open(StringIO.StringIO(screenshots[each]))
