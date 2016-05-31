@@ -30,20 +30,23 @@ class DomValidator(validator.base.BaseValidator):
         results = []
         offsets = {'top': 0}
 
-        def fuzzy_equals(num1, num2, extra=5):
+        def fuzzy_equals(num1, num2, extra=0):
             if not isinstance(num1, int) or not isinstance(num2, int):
                 return False
             return num2 in range(num1-extra, num1+extra+1)
 
         def node_details(node, node2=None, diff_type='unmatch'):
+            margin = {'marginTop':node['marginTop'],
+                       'marginBottom':node['marginBottom'],
+                     }
             if node2 is not None and diff_type == 'unmatch':
                 diffs = {'top': node['top']-node2['top'],
                          'left': node['left']-node2['left'],
                          'height': node['height']-node2['height'],
                          'width': node['width']-node2['width'],
                          'text': node['innerText']}
-                return (node['top'], node['left'], node['height'], node['width'], node['marginheight'], diff_type, diffs)
-            return (node['top'], node['left'], node['height'], node['width'], node['marginheight'], diff_type)
+                return (node['top'], node['left'], node['height'], node['width'], margin, diff_type, diffs)
+            return (node['top'], node['left'], node['height'], node['width'], margin, diff_type)
 
         def compare_node(node1, node2):
             try:

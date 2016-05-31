@@ -58,9 +58,11 @@ class DomMata(engine.matas.base.BaseMata):
         var w = e.offsetWidth;
         var h = e.offsetHeight;
         try {
-            var mh = parseInt(window.getComputedStyle(e, null).marginTop) + parseInt(window.getComputedStyle(e, null).marginBottom);
+            var mt = parseInt(window.getComputedStyle(e, null).marginTop);
+            var mb = parseInt(window.getComputedStyle(e, null).marginBottom);
         } catch(error) {
-            var mh = '0px';
+            var mt = 0;
+            var mb = 0;
         }
 
         while(e=e.offsetParent) {
@@ -72,7 +74,8 @@ class DomMata(engine.matas.base.BaseMata):
             left : l,
             width : w,
             height : h,
-            marginheight : mh
+            margintop : mt,
+            marginbottom : mb
         }
     }
 
@@ -159,7 +162,8 @@ class DomMata(engine.matas.base.BaseMata):
             'width': offset['width'],
             'top': offset['top'],
             'left': offset['left'],
-            'marginheight': offset['marginheight'],
+            'marginTop': offset['margintop'],
+            'marginBottom': offset['marginbottom'],
             'attributes': [],
             'childNodes': [],
             'parentNode': parentNodeName (node)
