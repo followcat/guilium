@@ -1,0 +1,14 @@
+{
+    "sut": [ 
+        {
+        "platform": "desktop",
+        "name": "chrome_sut",
+        "browser name": "chrome"
+        }
+    ],
+    "stub": {
+        "platform": "desktop",
+        "name": "chrome_stub",
+        "browser name": "Chrome"
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "sut": [ 
+        {
+        "platform": "desktop",
+        "name": "IE_sut",
+        "browser name": "IE",
+        "host": "10.0.0.118"
+        }
+    ],
+    "stub": {
+        "platform": "desktop",
+        "name": "chrome_stub",
+        "browser name": "Chrome",
+        "user data dir": "C:\Users\wanze\AppData\Local\Google\Chrome\User Data",
+        "host": "10.0.0.118"
+    }
+}
