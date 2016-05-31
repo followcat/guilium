@@ -33,7 +33,19 @@ class ImageMata(engine.matas.base.BaseMata):
 
     @property
     def HEIGHT(self):
-        screen_height = self.driver.execute_script('return window.screen.height')
+        if 'device name' in self.config:
+            height_js = "return window.screen.height"
+        else:
+            height_js = """
+                var e = window;
+                var a = 'inner';
+                if (!('innerWidth' in window )){
+                    a = 'client';
+                    e = document.documentElement || document.body;
+                }
+                return e[ a+'Height' ];
+            """
+        screen_height = self.driver.execute_script(height_js)
         return screen_height
 
     @property

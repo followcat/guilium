@@ -25,7 +25,7 @@ class Engine(object):
         self.matas = self.mata_factory()
 
     def mata_factory(self):
-        return [_cls() for _cls in self.mata_classes[self.platform]]
+        return [_cls(self.config) for _cls in self.mata_classes[self.platform]]
 
     def connector_factory(self):
         return self.connector_classes[self.platform](self.config)
