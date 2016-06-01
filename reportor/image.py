@@ -1,5 +1,6 @@
 import os
 import json
+import math
 import collections
 
 import Image
@@ -20,6 +21,8 @@ def reset_differences(differences):
                     _tmp[0] -= offset
             if offset > 0 and each[5] == 'extra' and each[0] >= top:
                 _tmp[0] += offset
+            if each[0] >= top and each[5] == 'unmatch':
+                    _tmp[-1]['top'] -= offset
         return_results[_index] = _tmp
     return return_results
 
@@ -34,6 +37,11 @@ def markelements(img, results):
         elif each[5] == 'miss':
             drawer.rectangle((left, top, right, bottom), outline='blue')
         elif each[5] == 'unmatch':
+            for key, value in each[-1].items():
+                if math.fabs(value) > 15:
+                    break
+            else:
+                continue
             if each[2] > 500:
                 continue
             drawer.rectangle((left, top, right, bottom), outline='red')
@@ -53,11 +61,10 @@ def report(differences, storage, sut_name, stub_name, url):
         scale = float(stub_width)/float(sut_width)
         sutShot = sutShot.resize((stub_width, int(sut_height*scale)))
         sut_width, sut_height = sutShot.size
-    #limit differences with 1 page
+    #select differences
     limit_diffs = []
     for diff in differences:
-        if diff[0] + diff[2] > sut_height:
-            continue
+        #ignore no sence record
         if diff[0] + diff[1] + diff[2] + diff[3] == 0:
             continue
         limit_diffs.append(diff)
@@ -150,7 +157,7 @@ def get_offset(differences):
     """
     if len(differences) > 0:
         y1 = differences[0][0]
-        y2 = differences[0][0] + differences[0][2] + differences[0][4]
+        y2 = differences[0][0] + differences[0][2] + differences[0][4]['marginBottom']
     res = []
     for _index, diff in enumerate(differences):
         if diff[2] > 400 or diff[2] == 0:
@@ -159,11 +166,11 @@ def get_offset(differences):
             if (y1, y2) not in res:
                 res.append((y1, y2))
             y1 = diff[0]
-            y2 = diff[0] + diff[2] + diff[4]
+            y2 = diff[0] + diff[2] + diff[4]['marginBottom']
         if diff[0] < y1:
             y1 = diff[0]
-        if diff[0] + diff[2] + diff[4] > y2:
-            y2 = diff[0] + diff[2] + diff[4]
+        if diff[0] + diff[2] + diff[4]['marginBottom'] > y2:
+            y2 = diff[0] + diff[2] + diff[4]['marginBottom']
     if (y1, y2) not in res:
         res.append((y1, y2))
     return res
@@ -172,23 +179,20 @@ def count_offset(differences):
     """
         >>> import json
         >>> import reportor.image
-        >>> differences = json.load(open('/tmp/http10.0.0.1195000mismatch_Galaxy_S4.json'))
+        >>> differences = json.load(open('/tmp/IE_sut_full.json'))
         >>> for offset in reportor.image.count_offset(differences):
-        ...     print(offset)
+        ...     print(str(offset))
     """
     offsets = []
     history_offset = 0
-    if len(differences) > 0:
-        y1 = differences[0][0]
-        y2 = differences[0][0] + differences[0][2] + differences[0][4]
     for _index, diff in enumerate(differences):
         if diff[5] == 'unmatch':
             for _key in ['left', 'height', 'width']:
-                if diff[-1][_key] != 0:
+                if math.fabs(diff[-1][_key]) > 5:
                     break
             else:
                 offset = diff[-1]['top'] - history_offset
                 history_offset += offset
                 if offset != 0:
-                    offsets.append((diff[0], offset))
+                    offsets.append((diff[0]-diff[4]['marginTop'], offset))
     return offsets
