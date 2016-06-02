@@ -9,6 +9,21 @@ import validator.error
 
 
 def reset_differences(differences):
+    """
+        >>> import json
+        >>> import reportor.image
+        >>> differences = json.load(open('results/full_IE_sut.json'))
+        >>> res = reportor.image.reset_differences(differences)
+        >>> import math
+        >>> for d in res:
+        ...     if d[5] == 'unmatch':
+        ...         for k, v in d[-1].items():
+        ...             if k == 'text':
+        ...                 continue
+        ...             if math.fabs(v) > 15:
+        ...                 print(d[-1])
+        ...                 break
+    """
     count_offsets = count_offset(differences)
     return_results = list(differences)
     for _index, each in enumerate(return_results):
@@ -38,7 +53,9 @@ def markelements(img, results):
             drawer.rectangle((left, top, right, bottom), outline='blue')
         elif each[5] == 'unmatch':
             for key, value in each[-1].items():
-                if math.fabs(value) > 15:
+                if key == 'text':
+                    continue
+                if math.fabs(value) >= 5:
                     break
             else:
                 continue
@@ -71,6 +88,10 @@ def report(differences, storage, sut_name, stub_name, url):
     differences = limit_diffs
     if len(differences) == 0:
         return
+    #text report
+    json_file = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut_name+'.json'
+    with open(json_file, 'w') as fp:
+        json.dump(differences, fp)
     #paste sut and stub with gaps
     count_offsets = count_offset(differences)
     sut_crop_paste, stub_crop_paste, full_height = \
@@ -94,10 +115,6 @@ def report(differences, storage, sut_name, stub_name, url):
         piece = result_image.crop((0, y1-ch, sut_width+stub_width, y2+ch))
         piece.save(pieces_dir + '/image_piece_%s.png'%str((0, y1)))
 
-    #text report
-    json_file = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut_name+'.json'
-    with open(json_file, 'w') as fp:
-        json.dump(differences, fp)
     json_link = 'file://' + json_file
     image_link = 'file://' + img_file
     raise validator.error.TestError("%d differences found in "
@@ -156,7 +173,7 @@ def get_offset(differences):
         ...     print(y1, y2)
     """
     if len(differences) > 0:
-        y1 = differences[0][0]
+        y1 = differences[0][0] - differences[0][4]['marginTop']
         y2 = differences[0][0] + differences[0][2] + differences[0][4]['marginBottom']
     res = []
     for _index, diff in enumerate(differences):
@@ -165,10 +182,10 @@ def get_offset(differences):
         if diff[0] > y2 + 100:
             if (y1, y2) not in res:
                 res.append((y1, y2))
-            y1 = diff[0]
+            y1 = diff[0] - diff[4]['marginTop']
             y2 = diff[0] + diff[2] + diff[4]['marginBottom']
-        if diff[0] < y1:
-            y1 = diff[0]
+        if diff[0] - diff[4]['marginTop'] < y1:
+            y1 = diff[0] - diff[4]['marginTop']
         if diff[0] + diff[2] + diff[4]['marginBottom'] > y2:
             y2 = diff[0] + diff[2] + diff[4]['marginBottom']
     if (y1, y2) not in res:
@@ -179,7 +196,7 @@ def count_offset(differences):
     """
         >>> import json
         >>> import reportor.image
-        >>> differences = json.load(open('/tmp/IE_sut_full.json'))
+        >>> differences = json.load(open('results/full_IE_sut.json'))
         >>> for offset in reportor.image.count_offset(differences):
         ...     print(str(offset))
     """
@@ -192,7 +209,20 @@ def count_offset(differences):
                     break
             else:
                 offset = diff[-1]['top'] - history_offset
-                history_offset += offset
-                if offset != 0:
-                    offsets.append((diff[0]-diff[4]['marginTop'], offset))
+                if diff[-1]['top'] == 0 or offset == 0:
+                    continue
+                top = diff[0] - diff[4]['marginTop']
+                # check if the top line cut any element
+                for _d in differences:
+                    if _d == diff:
+                        continue
+                    if _d[0] <= diff[0] <= (_d[0] + _d[2]):
+                        if  _d[0] < (diff[0] + diff[2]) <= (_d[0] + _d[2]) and \
+                            _d[1] <= diff[1] < (_d[1] + _d[3]) and \
+                            _d[1] < (diff[1] + diff[3]) <= (_d[1] + _d[3]):
+                            continue
+                        break
+                else:
+                    history_offset += offset
+                    offsets.append((top, offset))
     return offsets
