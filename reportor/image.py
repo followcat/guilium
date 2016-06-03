@@ -41,8 +41,15 @@ def reset_differences(differences):
         return_results[_index] = _tmp
     return return_results
 
-def markelements(img, results):
+def markelements(img, results, ignore=5):
+    rate = 0
     drawer = ImageDraw.Draw(img)
+    body = results[-1]
+    width_diff = ignore
+    if body[5] == 'unmatch':
+        width_diff = body[-1]['width']
+        if width_diff < 0:
+            drawer.rectangle((body[1]+body[3], body[0], body[1]+body[3]-width_diff, body[0]+body[2]), fill='green', outline='green')
     for each in results:
         top, left, height, width = each[0], each[1], each[2], each[3]
         #height += each[4]
@@ -55,8 +62,12 @@ def markelements(img, results):
             for key, value in each[-1].items():
                 if key == 'text':
                     continue
-                if math.fabs(value) >= 5:
-                    break
+                if key in ['width', 'left']:
+                    if math.fabs(value) > max(ignore, math.fabs(width_diff)):
+                        break
+                elif key in ['top', 'height']:
+                    if math.fabs(value) > ignore:
+                        break
             else:
                 continue
             if each[2] > 500:
