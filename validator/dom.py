@@ -30,11 +30,6 @@ class DomValidator(validator.base.BaseValidator):
         results = []
         offsets = {'top': 0}
 
-        def fuzzy_equals(num1, num2, extra=0):
-            if not isinstance(num1, int) or not isinstance(num2, int):
-                return False
-            return num2 in range(num1-extra, num1+extra+1)
-
         def node_details(node, node2=None, diff_type='unmatch'):
             margin = {'marginTop':node['marginTop'],
                        'marginBottom':node['marginBottom'],
@@ -50,11 +45,11 @@ class DomValidator(validator.base.BaseValidator):
 
         def compare_node(node1, node2):
             try:
-                if ((not fuzzy_equals(node1['top'], node2['top']+offsets['top'])) and \
-                        (not fuzzy_equals(node1['top'], node2['top'])) or
-                    not fuzzy_equals(node1['left'], node2['left']) or
-                    not fuzzy_equals(node1['width'], node2['width']) or
-                    not fuzzy_equals(node1['height'], node2['height'])):
+                if (((node1['top'] != node2['top']+offsets['top']) and
+                        (node1['top'] != node2['top'])) or
+                    node1['left'] != node2['left'] or
+                    node1['width'] != node2['width'] or
+                    node1['height'] != node2['height']):
                     results.append(node_details(node1, node2, diff_type='unmatch'))
                     if node1['top'] != node2['top']:
                         offsets['top'] = node1['top'] - node2['top']
