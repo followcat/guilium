@@ -193,16 +193,10 @@ class WebviewDomMata(DomMata):
     """"""
     def process(self, url, driver):
         driver.switch_to.context('CHROMIUM')
-        driver.get(url)
-        self.scrollfullscreen(driver)
-        dom = driver.execute_script(self.jscodes)
-        return dom
+        return driver.execute_script(self.jscodes)
 
 
 class DesktopDomMata(DomMata):
     """"""
     def process(self, url, driver):
-        driver.get(url)
-        self.scrollfullscreen(driver)
-        dom = driver.execute_script(self.jscodes)
-        return dom
+        return driver.execute_script(self.jscodes)

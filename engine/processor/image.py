@@ -63,6 +63,50 @@ def get_webview(driver):
     results = sorted(allview(xmlobj), key=lambda each: area(each), reverse=True)
     return results[0]
 
+def ignore_fixed_element(driver):
+    jscodes = """
+        function ignoreFixedElement (node) {
+            try {
+                if (window.getComputedStyle(node, null)) {
+                    var pos = window.getComputedStyle(node, null).position;
+                    if(pos=='fixed') {
+                        node.parentNode.removeChild(node);
+                    }
+                    else if (node.childNodes && node.childNodes.length) {
+                        for (var i = 0; i < node.childNodes.length; ++i) {
+                            ignoreFixedElement (node.childNodes.item(i));
+                        }
+                    }
+                }
+            }
+            catch(error) {}
+        }
+        var node = document.body;
+        ignoreFixedElement(node);
+    """
+    driver.execute_script(jscodes)
+
+
+def scrollfullscreen(driver):
+    scroll_height = driver.execute_script('return window.screen.height')
+    driver.execute_script('window.scrollTo(0, 0);')
+    time.sleep(1)
+
+    moved = 0
+    count = 0
+    while True:
+        last_moved = moved
+        driver.execute_script('window.scrollTo(0, %d);' % (count*scroll_height))
+        time.sleep(0.3)
+        moved = scroll_top(driver) - last_moved
+        if last_moved > moved or (last_moved > 0 and moved == 0):
+            break
+        if count > 0 and moved == 0:
+            break
+        count += 1
+    driver.execute_script('window.scrollTo(0, 0);')
+    return True
+
 def webviewfullscreen(driver, scroll_height, shotfunc, scale=1, page_limit=20):
     """"""
     screenshots = []
@@ -78,6 +122,8 @@ def webviewfullscreen(driver, scroll_height, shotfunc, scale=1, page_limit=20):
         time.sleep(0.5)
         moved = scroll_top(driver) - scrolled
         png = shotfunc()
+        if count > 0 and moved == 0 and last_moved == 0:
+            break
         screenshots.append(png)
         count += 1
         if last_moved > moved or (last_moved > 0 and moved == 0):
