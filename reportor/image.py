@@ -1,6 +1,7 @@
 import os
 import json
 import math
+import time
 import collections
 
 import Image
@@ -37,7 +38,7 @@ def reset_differences(differences):
             if offset > 0 and each[5] == 'extra' and each[0] >= top:
                 _tmp[0] += offset
             if each[0] >= top and each[5] == 'unmatch':
-                    _tmp[-1]['top'] -= offset
+                _tmp[-1]['top'] -= offset
         return_results[_index] = _tmp
     return return_results
 
@@ -63,10 +64,10 @@ def markelements(img, results, ignore=5):
                 if key == 'text':
                     continue
                 if key in ['width', 'left']:
-                    if math.fabs(value) > max(ignore, math.fabs(width_diff)):
+                    if math.fabs(value) >= max(ignore, math.fabs(width_diff)):
                         break
                 elif key in ['top', 'height']:
-                    if math.fabs(value) > ignore:
+                    if math.fabs(value) >= ignore:
                         break
             else:
                 continue
@@ -100,7 +101,10 @@ def report(differences, storage, sut_name, stub_name, url):
     if len(differences) == 0:
         return
     #text report
-    json_file = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut_name+'.json'
+    url = url[0]
+    url += time.ctime().replace(" ", "_")
+    url = url.replace(":", "").replace("/", "")
+    json_file = '/tmp/'+url+'_'+sut_name+'.json'
     with open(json_file, 'w') as fp:
         json.dump(differences, fp)
     #paste sut and stub with gaps
@@ -114,11 +118,11 @@ def report(differences, storage, sut_name, stub_name, url):
         result_image.paste(stubShot.crop(crop), paste)
     update_differences = reset_differences(differences)
     markelements(result_image, update_differences)
-    img_file = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut_name+'.png'
+    img_file = '/tmp/'+url+'_'+sut_name+'.png'
     result_image.save(img_file)
 
     #image pieces
-    pieces_dir = '/tmp/'+url.replace(":", "").replace("/", "")+'_'+sut_name
+    pieces_dir = '/tmp/'+url+'_'+sut_name
     if not os.path.exists(pieces_dir):
         os.mkdir(pieces_dir)
     ch = 20
