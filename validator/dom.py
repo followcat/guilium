@@ -39,7 +39,8 @@ class DomValidator(validator.base.BaseValidator):
                          'left': node['left']-node2['left'],
                          'height': node['height']-node2['height'],
                          'width': node['width']-node2['width'],
-                         'text': node['innerText']}
+                         'text': node['innerText'],
+                         'name': node['name']}
                 return (node['top'], node['left'], node['height'], node['width'], margin, diff_type, diffs)
             return (node['top'], node['left'], node['height'], node['width'], margin, diff_type)
 
