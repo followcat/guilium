@@ -49,11 +49,17 @@ def markelements(img, results, ignore=5):
     width_diff = ignore
     if body[5] == 'unmatch':
         width_diff = body[-1]['width']
+        width = body[1]+body[3]
         if width_diff < 0:
-            drawer.rectangle((body[1]+body[3], body[0], body[1]+body[3]-width_diff, body[0]+body[2]), fill='green', outline='green')
+            rectangle = (width, body[0], width-width_diff, body[0]+body[2])
+            drawer.rectangle(rectangle, fill='green', outline='green')
+        elif width_diff > 0:
+            rectangle = (width-width_diff, body[0], width, body[0]+body[2])
+            drawer.rectangle(rectangle, fill='blue', outline='blue')
     for each in results:
         top, left, height, width = each[0], each[1], each[2], each[3]
-        #height += each[4]
+        if height == 0 or width == 0:
+            continue
         bottom, right = top+height, left+width
         if each[5] == 'extra':
             drawer.rectangle((left, top, right, bottom), outline='green')
