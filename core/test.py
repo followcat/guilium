@@ -1,5 +1,6 @@
 import functools
 
+
 def test_actions(test, driver):
     url, actions = test
     for action in actions:
@@ -12,6 +13,21 @@ def test_actions(test, driver):
                 e.send_keys(action[-1])
             elif action[0] == 'click':
                 e.click()
+
+def test_generator(urls):
+    for url in urls:
+        if isinstance(url, tuple):
+            last_index = 0
+            for index, item in enumerate(url[1]):
+                if item == 'test':
+                    yield_test = (url[0], url[1][last_index: index])
+                    last_index = index + 1
+                    yield Test(yield_test), yield_test
+            if last_index < len(url[1]):
+                yield_test = (url[0], url[1][last_index:])
+                yield Test(yield_test), yield_test
+        else:
+            yield Test((url, ('get',))), url
 
 class Test:
     def __init__(self, url):

@@ -30,5 +30,5 @@ def urls():
             ]
 
 def TestGenerator():
-    for url in urls():
-        yield core.test.Test(url), url
+    for test in core.test.test_generator(urls()):
+        yield test
