@@ -235,7 +235,7 @@ def count_offset(differences):
                 for _d in differences:
                     if _d == diff or _d[5] == 'extra':
                         continue
-                    if _d[0] <= diff[0] <= (_d[0] + _d[2]):
+                    if (_d[0] - _d[4]['marginTop']) < (diff[0] - diff[4]['marginTop']) < (_d[0] + _d[2] + _d[4]['marginBottom']):
                         if  _d[0] < (diff[0] + diff[2]) <= (_d[0] + _d[2]) and \
                             _d[1] <= diff[1] < (_d[1] + _d[3]) and \
                             _d[1] < (diff[1] + diff[3]) <= (_d[1] + _d[3]):
