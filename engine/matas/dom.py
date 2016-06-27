@@ -120,7 +120,7 @@ class DomMata(engine.matas.base.BaseMata):
 
     function parentNodeName (node)
     {
-        if (node.parentNode!=null) {
+        if (node.parentNode!=null && node.parentNode.nodeName != 'BODY') {
             var parentName = parentNodeName (node.parentNode);
             parentName += '<SEP>' + node.className;
             return parentName
