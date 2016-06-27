@@ -47,7 +47,7 @@ def markelements(img, results, ignore=5):
     drawer = ImageDraw.Draw(img)
     body = results[-1]
     width_diff = ignore
-    if body[5] == 'unmatch':
+    if body[5] == 'unmatch' and body[-1]['name'] == 'BODY':
         width_diff = body[-1]['width']
         width = body[1]+body[3]
         if width_diff < 0:
@@ -67,8 +67,6 @@ def markelements(img, results, ignore=5):
             drawer.rectangle((left, top, right, bottom), outline='blue')
         elif each[5] == 'unmatch':
             for key, value in each[-1].items():
-                if key == 'text':
-                    continue
                 if key in ['width', 'left']:
                     if math.fabs(value) >= max(ignore, math.fabs(width_diff)):
                         break
@@ -235,7 +233,7 @@ def count_offset(differences):
                 top = diff[0] - diff[4]['marginTop']
                 # check if the top line cut any element
                 for _d in differences:
-                    if _d == diff:
+                    if _d == diff or _d[5] == 'extra':
                         continue
                     if _d[0] <= diff[0] <= (_d[0] + _d[2]):
                         if  _d[0] < (diff[0] + diff[2]) <= (_d[0] + _d[2]) and \
