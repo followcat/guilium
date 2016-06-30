@@ -40,10 +40,15 @@ class Guilium(nose.plugins.Plugin):
                           dest='config_file',
                           default='./test/config.json',
                           help="Specify the path to the configure file")
+        parser.add_option('--test-file', action='store',
+                          dest='test_file',
+                          default='./test/test_plan.json',
+                          help="Specify the path to the configure file")
         return parser
 
     def configure(self, options, config):
         """Read system under test from options"""
+        self.test_file = options.test_file
         nose.plugins.Plugin.configure(self, options, config)
 
     def prepareTestLoader(self, loader):
@@ -81,7 +86,7 @@ class Guilium(nose.plugins.Plugin):
         def generate(g=generator, m=module):
             generated = False
             try:
-                for test in g():
+                for test in g(self.test_file):
                     test_func, arg = self.loader.parseGeneratedTest(test)
                     generated = True
                     yield nose_plugin.suite.FunctionTestCase(test_func, config=self.config, arg=arg, descriptor=g)
