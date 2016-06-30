@@ -16,7 +16,8 @@ def test_actions(test, driver):
 
 def test_generator(urls):
     for url in urls:
-        if isinstance(url, tuple):
+        if isinstance(url, list):
+            url = tuple(url)
             last_index = 0
             for index, item in enumerate(url[1]):
                 if item == 'test':
