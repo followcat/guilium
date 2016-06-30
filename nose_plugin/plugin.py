@@ -48,7 +48,7 @@ class Guilium(nose.plugins.Plugin):
 
     def configure(self, options, config):
         """Read system under test from options"""
-        self.test_file = options.test_file
+        self.test_list = open(options.test_file).read()
         nose.plugins.Plugin.configure(self, options, config)
 
     def prepareTestLoader(self, loader):
@@ -86,7 +86,7 @@ class Guilium(nose.plugins.Plugin):
         def generate(g=generator, m=module):
             generated = False
             try:
-                for test in g(self.test_file):
+                for test in g(self.test_list):
                     test_func, arg = self.loader.parseGeneratedTest(test)
                     generated = True
                     yield nose_plugin.suite.FunctionTestCase(test_func, config=self.config, arg=arg, descriptor=g)
