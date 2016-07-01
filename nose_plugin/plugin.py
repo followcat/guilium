@@ -49,6 +49,7 @@ class Guilium(nose.plugins.Plugin):
     def configure(self, options, config):
         """Read system under test from options"""
         self.test_list = open(options.test_file).read()
+        self.runlog = options.runlog
         nose.plugins.Plugin.configure(self, options, config)
 
     def prepareTestLoader(self, loader):
