@@ -11,6 +11,7 @@ def test_actions(test, driver):
     for action in actions:
         if action == 'get' or action[0] == 'get':
             driver.get(url)
+            time.sleep(3)
         else:
             e = driver.find_element_by_xpath(action[1])
             if action[0] == 'fill':
@@ -18,7 +19,6 @@ def test_actions(test, driver):
                 e.send_keys(action[-1])
             elif action[0] == 'click':
                 e.click()
-                time.sleep(3)
 
 
 class Test(core.test.Test):
