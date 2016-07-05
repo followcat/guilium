@@ -94,7 +94,9 @@ public class GuiliumBuilder extends Builder {
         //listener.getLogger().println(command);
         boolean result = false;
         try {
-            Process pro = Runtime.getRuntime().exec(command, null, new File("/home/jeff/Projects/uitest/guilium/guilium"));
+            String ENV_HOME = System.getenv("HOME");
+            String ENV_GUILIUM_HOME = System.getenv("GUILIUM_HOME", ENV_HOME+"/Projects/guilium/guilium");
+            Process pro = Runtime.getRuntime().exec(command, null, new File(ENV_GUILIUM_HOME));
             pro.waitFor();
             BufferedReader br = new BufferedReader(new InputStreamReader(pro.getErrorStream()));
             StringBuffer sb = new StringBuffer();
