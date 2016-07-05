@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 
+import java.security.MessageDigest;
+
 import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
 
@@ -36,7 +38,7 @@ import net.sf.json.JSONArray;
  *
  * <p>
  * When a build is performed, the {@link #perform(Build, Launcher, BuildListener)} method
- * will be invoked. 
+ * will be invoked.
  *
  * @author ZhangQuanyun
  */
@@ -79,11 +81,37 @@ public class GuiliumBuilder extends Builder {
         return true;
     }
 
+    public static String string2MD5(String inStr){
+        MessageDigest md5 = null;
+        try{
+            md5 = MessageDigest.getInstance("MD5");
+        }catch (Exception e){
+            System.out.println(e.toString());
+            e.printStackTrace();
+            return "";
+        }
+        char[] charArray = inStr.toCharArray();
+        byte[] byteArray = new byte[charArray.length];
+
+        for (int i = 0; i < charArray.length; i++)
+            byteArray[i] = (byte) charArray[i];
+        byte[] md5Bytes = md5.digest(byteArray);
+        StringBuffer hexValue = new StringBuffer();
+        for (int i = 0; i < md5Bytes.length/2; i++){
+            int val = ((int) md5Bytes[i]) & 0xff;
+            if (val < 16)
+                hexValue.append("0");
+            hexValue.append(Integer.toHexString(val));
+        }
+        return hexValue.toString();
+
+    }
+
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
         //save the config file and test file for python command run
-        String config_file = "/tmp/config.json";
-        String test_plan_file = "/tmp/test.json";
+        String config_file = "/tmp/config_"+string2MD5(cfile)+".json";
+        String test_plan_file = "/tmp/test_"+string2MD5(tplan)+".json";
         try {
             saveJsonFile(cfile, config_file);
             saveJsonFile(tplan, test_plan_file);
