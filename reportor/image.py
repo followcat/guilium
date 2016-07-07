@@ -47,15 +47,18 @@ def markelements(img, results, ignore=5):
     drawer = ImageDraw.Draw(img)
     body = results[-1]
     width_diff = ignore
+    is_draw = False
     if body[5] == 'unmatch' and body[-1]['name'] == 'BODY':
         width_diff = body[-1]['width']
         width = body[1]+body[3]
         if width_diff < 0:
             rectangle = (width, body[0], width-width_diff, body[0]+body[2])
             drawer.rectangle(rectangle, fill='green', outline='green')
+            is_draw = True
         elif width_diff > 0:
             rectangle = (width-width_diff, body[0], width, body[0]+body[2])
             drawer.rectangle(rectangle, fill='blue', outline='blue')
+            is_draw = True
     for each in results:
         top, left, height, width = each[0], each[1], each[2], each[3]
         if height == 0 or width == 0:
@@ -63,8 +66,10 @@ def markelements(img, results, ignore=5):
         bottom, right = top+height, left+width
         if each[5] == 'extra':
             drawer.rectangle((left, top, right, bottom), outline='green')
+            is_draw = True
         elif each[5] == 'miss':
             drawer.rectangle((left, top, right, bottom), outline='blue')
+            is_draw = True
         elif each[5] == 'unmatch':
             for key, value in each[-1].items():
                 if key in ['width', 'left']:
@@ -78,6 +83,8 @@ def markelements(img, results, ignore=5):
             if each[2] > 500:
                 continue
             drawer.rectangle((left, top, right, bottom), outline='red')
+            is_draw = True
+        return is_draw
 
 def report(differences, storage, sut_name, stub_name, url):
     stack = storage.get()
@@ -121,7 +128,9 @@ def report(differences, storage, sut_name, stub_name, url):
     for crop, paste in stub_crop_paste:
         result_image.paste(stubShot.crop(crop), paste)
     update_differences = reset_differences(differences)
-    markelements(result_image, update_differences)
+    is_draw_diff = markelements(result_image, update_differences)
+    if not is_draw_diff:
+        return
     img_file = '/tmp/'+url+'_'+sut_name+'.png'
     result_image.save(img_file)
 
