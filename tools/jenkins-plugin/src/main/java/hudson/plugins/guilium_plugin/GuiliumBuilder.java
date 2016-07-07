@@ -119,16 +119,17 @@ public class GuiliumBuilder extends Builder {
             listener.getLogger().println("Exception "+ e.getMessage());
         }
         String command = "python nose_plugin/plugin.py --with-guilium --config-file="+config_file+" --test-file="+test_plan_file+" test/test_plan.py -v";
-        //listener.getLogger().println(command);
+        listener.getLogger().println(command);
         boolean result = false;
         try {
             String ENV_GUILIUM_HOME = System.getenv("GUILIUM_HOME");
             Process pro = Runtime.getRuntime().exec(command, null, new File(ENV_GUILIUM_HOME));
             pro.waitFor();
-            BufferedReader br = new BufferedReader(new InputStreamReader(pro.getErrorStream()));
+            BufferedReader br = new BufferedReader(new InputStreamReader(pro.getInputStream()));
+            BufferedReader br_er = new BufferedReader(new InputStreamReader(pro.getErrorStream()));
             StringBuffer sb = new StringBuffer();
             String line;
-            while ((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null || (line = br_er.readLine()) != null) {
                 sb.append(line).append("\n");
                 if ("OK".equals(line)) {
                     result = true;
