@@ -113,9 +113,10 @@ def report(differences, storage, sut_name, stub_name, url):
         return
     #text report
     url = url[0]
-    url += time.ctime().replace(" ", "_")
-    url = url.replace(":", "").replace("/", "")
-    json_file = '/tmp/'+url+'_'+sut_name+'.json'
+    url += time.ctime().replace(" ", "")
+    url = url.replace(":", "_").replace("/", "_")
+    ftp_root = "reports/"
+    json_file = ftp_root+url+'_'+sut_name+'.json'
     with open(json_file, 'w') as fp:
         json.dump(differences, fp)
     #paste sut and stub with gaps
@@ -131,11 +132,11 @@ def report(differences, storage, sut_name, stub_name, url):
     is_draw_diff = markelements(result_image, update_differences)
     if not is_draw_diff:
         return
-    img_file = '/tmp/'+url+'_'+sut_name+'.png'
+    img_file = ftp_root+url+'_'+sut_name+'.png'
     result_image.save(img_file)
 
     #image pieces
-    pieces_dir = '/tmp/'+url+'_'+sut_name
+    pieces_dir = ftp_root+url+'_'+sut_name
     if not os.path.exists(pieces_dir):
         os.mkdir(pieces_dir)
     ch = 20
@@ -143,8 +144,10 @@ def report(differences, storage, sut_name, stub_name, url):
         piece = result_image.crop((0, y1-ch, sut_width+stub_width, y2+ch))
         piece.save(pieces_dir + '/image_piece_%s.png'%str((0, y1)))
 
-    json_link = 'file://' + json_file
-    image_link = 'file://' + img_file
+    host_ip = "10.0.0.119"
+    json_link = 'ftp://%s/'%host_ip + json_file[json_file.index("reports/")+8:]
+    image_link = 'ftp://%s/'%host_ip + img_file[json_file.index("reports/")+8:]
+    pieces_link = 'ftp://%s/'%host_ip + pieces_dir[json_file.index("reports/")+8:]
     raise validator.error.TestError("%d differences found in "
                 "positions %s... "
                 "\nSee differences %s"
@@ -154,7 +157,7 @@ def report(differences, storage, sut_name, stub_name, url):
                   str((differences[0][0], differences[0][1])),
                   json_link,
                   image_link,
-                  'file://' + pieces_dir))
+                  pieces_link))
 
 def get_crop_paste(offsets, sut_height, sut_width, stub_height, stub_width):
     """
