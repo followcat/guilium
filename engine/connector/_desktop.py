@@ -18,12 +18,14 @@ class DesktopConnector(engine.connector.base.Connector):
             self.command_executor = 'http://%s:%s/wd/hub'%(host, port)
 
     def start(self):
-        if 'browser name' in self.config and self.config['browser name'] == 'IE':
-            self.driver = self.start_ie()
+        if 'browser name' in self.config:
+            browser = self.config['browser name']
+            if browser in ['IE', 'Internet Explorer', 'ie', 'internet explorer']:
+                self.driver = self.start_ie()
+            elif browser in ['Chrome', 'chrome', 'Google Chrome', 'google chrome']:
+                self.driver = self.start_chrome()
         elif 'device name' in self.config:
             self.driver = self.start_chrome(emulation=True)
-        else:
-            self.driver = self.start_chrome()
         self.driver.maximize_window()
 
     def start_ie(self):
