@@ -113,8 +113,14 @@ def report(differences, storage, sut_name, stub_name, url):
         return
     #text report
     url = url[0]
-    url += time.ctime().replace(" ", "")
-    url = url.replace(":", "_").replace("/", "_")
+    index = len(url)
+    try:
+        index = url.index('?')
+    except ValueError:
+        pass
+    url = url[:index]
+    url += "_"+time.ctime().replace(" ", "_")
+    url = url.replace(":", "").replace("/", "")
     ftp_root = "reports/"
     json_file = ftp_root+url+'_'+sut_name+'.json'
     with open(json_file, 'w') as fp:
@@ -144,10 +150,10 @@ def report(differences, storage, sut_name, stub_name, url):
         piece = result_image.crop((0, y1-ch, sut_width+stub_width, y2+ch))
         piece.save(pieces_dir + '/image_piece_%s.png'%str((0, y1)))
 
-    host_ip = "10.0.0.119"
+    host_ip = "10.0.0.119" #TODO set to the jenkins server ip address
     json_link = 'ftp://%s/'%host_ip + json_file[json_file.index("reports/")+8:]
-    image_link = 'ftp://%s/'%host_ip + img_file[json_file.index("reports/")+8:]
-    pieces_link = 'ftp://%s/'%host_ip + pieces_dir[json_file.index("reports/")+8:]
+    image_link = 'ftp://%s/'%host_ip + img_file[img_file.index("reports/")+8:]
+    pieces_link = 'ftp://%s/'%host_ip + pieces_dir[pieces_dir.index("reports/")+8:]
     raise validator.error.TestError("%d differences found in "
                 "positions %s... "
                 "\nSee differences %s"
