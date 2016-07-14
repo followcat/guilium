@@ -11,7 +11,7 @@
         "platform": "desktop",
         "name": "chrome_stub",
         "browser name": "Chrome",
-        "user data dir": "C:\Users\willendare\AppData\Local\Google\Chrome\User Data",
+        "profile": "C:\Users\willendare\AppData\Local\Google\Chrome\User Data",
         "host": "10.0.0.117"
     }
 }
