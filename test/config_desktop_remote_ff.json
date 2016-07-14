@@ -1,0 +1,18 @@
+{
+    "sut": [ 
+        {
+        "platform": "desktop",
+        "name": "Firefox_sut",
+        "browser name": "Firefox",
+        "profile": "/home/jeff/.mozilla/firefox/ozyc3tvj.jeff",
+        "host": "10.0.0.117"
+        }
+    ],
+    "stub": {
+        "platform": "desktop",
+        "name": "chrome_stub",
+        "browser name": "Chrome",
+        "profile": "C:\Users\willendare\AppData\Local\Google\Chrome\User Data",
+        "host": "10.0.0.117"
+    }
+}
