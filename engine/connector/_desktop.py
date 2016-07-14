@@ -1,5 +1,6 @@
 import selenium.webdriver
 import selenium.webdriver.chrome.options
+import selenium.webdriver.firefox.options
 
 import engine.connector.base
 
@@ -24,6 +25,8 @@ class DesktopConnector(engine.connector.base.Connector):
                 self.driver = self.start_ie()
             elif browser in ['Chrome', 'chrome', 'Google Chrome', 'google chrome']:
                 self.driver = self.start_chrome()
+            elif browser in ['Firefox', 'firefox', 'ff', 'FF']:
+                self.driver = self.start_firefox()
         elif 'device name' in self.config:
             self.driver = self.start_chrome(emulation=True)
         self.driver.maximize_window()
@@ -31,6 +34,17 @@ class DesktopConnector(engine.connector.base.Connector):
     def start_ie(self):
         desired_caps = selenium.webdriver.DesiredCapabilities.INTERNETEXPLORER
         driver = selenium.webdriver.Remote(command_executor=self.command_executor, desired_capabilities=desired_caps)
+        return driver
+
+    def start_firefox(self):
+        desired_caps = selenium.webdriver.DesiredCapabilities.FIREFOX
+        profile = None
+        if 'profile' in self.config:
+            profile = selenium.webdriver.FirefoxProfile(self.config['profile'])
+        if self.command_executor is None:
+            driver = selenium.webdriver.Firefox(capabilities=desired_caps, firefox_profile=profile)
+        else:
+            driver = selenium.webdriver.Remote(command_executor=self.command_executor, browser_profile=profile, desired_capabilities=desired_caps)
         return driver
 
     def start_chrome(self, emulation=False):
