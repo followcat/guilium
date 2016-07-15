@@ -82,7 +82,10 @@ def ignore_fixed_element(driver):
             catch(error) {}
         }
         var node = document.body;
-        ignoreFixedElement(node);
+        window.scrollTo(0, node.offsetHeight);
+        setTimeout(function(){
+          ignoreFixedElement(node);
+        },100);
     """
     driver.execute_script(jscodes)
 
