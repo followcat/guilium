@@ -38,20 +38,20 @@ class Engine(object):
     def stop(self):
         self.comm.stop()
 
-    def preprocess(self, ignore_fixed=False):
+    def preprocess(self, ignore_fixed=True):
         scrollfullscreen(self.comm.driver)
         if ignore_fixed:
             ignore_fixed_element(self.comm.driver)
 
     def process(self, url):
         results = {}
+        ignore_fixed=True
         if isinstance(url, tuple):
             actions = url[1]
             actions(self.comm.driver)
-        self.preprocess()
+            ignore_fixed=url[2]
+        self.preprocess(ignore_fixed)
         for mata in self.matas:
             result = mata.process(url, self.comm.driver)
             results[mata.type] = result
         return results
-
-

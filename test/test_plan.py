@@ -23,11 +23,11 @@ def test_actions(test, driver):
 
 class Test(core.test.Test):
 
-    def __init__(self, url):
+    def __init__(self, url, ignore_fix_element=False):
         self.test_actions = None
         if isinstance(url, tuple):
             self.test_actions = functools.partial(test_actions, url)
-            self.test_url = (url[0], self.test_actions)
+            self.test_url = (url[0], self.test_actions, ignore_fix_element)
         else:
             self.test_url = url
 
@@ -53,4 +53,4 @@ def TestGenerator(test_list):
                 yield_test = (url[0], url[1][last_index:])
                 yield Test(yield_test), yield_test
         else:
-            yield Test((url, ('get',))), url
+            yield Test((url, ('get',)), ignore_fix_element=True), url
