@@ -9,6 +9,8 @@ import ImageDraw
 import validator.error
 
 
+IGNORE_PIXEL_NUMBER = 10
+
 def reset_differences(differences):
     """
         >>> import json
@@ -42,7 +44,7 @@ def reset_differences(differences):
         return_results[_index] = _tmp
     return return_results
 
-def markelements(img, results, ignore=5):
+def markelements(img, results, ignore=IGNORE_PIXEL_NUMBER):
     rate = 0
     drawer = ImageDraw.Draw(img)
     body = results[-1]
@@ -84,7 +86,7 @@ def markelements(img, results, ignore=5):
                 continue
             drawer.rectangle((left, top, right, bottom), outline='red')
             is_draw = True
-        return is_draw
+    return is_draw
 
 def report(differences, storage, sut_name, stub_name, url):
     stack = storage.get()
@@ -244,11 +246,12 @@ def count_offset(differences):
     for _index, diff in enumerate(differences):
         if diff[5] == 'unmatch':
             for _key in ['left', 'height', 'width']:
-                if math.fabs(diff[-1][_key]) > 5:
+                #not counting offsides on the difference
+                if math.fabs(diff[-1][_key]) > IGNORE_PIXEL_NUMBER:
                     break
             else:
                 offset = diff[-1]['top'] - history_offset
-                if diff[-1]['top'] == 0 or math.fabs(offset) < 10:
+                if diff[-1]['top'] == 0 or math.fabs(offset) < IGNORE_PIXEL_NUMBER:
                     continue
                 top = diff[0] - diff[4]['marginTop']
                 # check if the top line cut any element
