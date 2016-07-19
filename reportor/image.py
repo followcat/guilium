@@ -94,13 +94,15 @@ def report(differences, storage, sut_name, stub_name, url):
     stub_width, stub_height = stubShot.size
     #scale to the same width
     if stub_width > sut_width:
-        scale = float(sut_width)/float(stub_width)
-        stubShot = stubShot.resize((sut_width, int(stub_height*scale)))
-        stub_width, stub_height = stubShot.size
+        if stub_width%sut_width == 0:
+            scale = float(sut_width)/float(stub_width)
+            stubShot = stubShot.resize((sut_width, int(stub_height*scale)))
+            stub_width, stub_height = stubShot.size
     elif stub_width < sut_width:
-        scale = float(stub_width)/float(sut_width)
-        sutShot = sutShot.resize((stub_width, int(sut_height*scale)))
-        sut_width, sut_height = sutShot.size
+        if sut_width%stub_width == 0:
+            scale = float(stub_width)/float(sut_width)
+            sutShot = sutShot.resize((stub_width, int(sut_height*scale)))
+            sut_width, sut_height = sutShot.size
     #select differences
     limit_diffs = []
     for diff in differences:
