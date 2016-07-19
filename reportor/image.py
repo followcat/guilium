@@ -248,7 +248,7 @@ def count_offset(differences):
                     break
             else:
                 offset = diff[-1]['top'] - history_offset
-                if diff[-1]['top'] == 0 or offset == 0:
+                if diff[-1]['top'] == 0 or math.fabs(offset) < 10:
                     continue
                 top = diff[0] - diff[4]['marginTop']
                 # check if the top line cut any element
