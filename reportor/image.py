@@ -2,6 +2,7 @@ import os
 import json
 import math
 import time
+import codecs
 import collections
 
 import Image
@@ -147,8 +148,8 @@ def report(differences, storage, sut_name, stub_name, url):
     if not is_draw_diff:
         return
     draw_json_file = ftp_root+url+'_'+sut_name+'_draw.json'
-    with open(draw_json_file, 'w') as fp:
-        json.dump(draw_differences, fp)
+    with codecs.open(draw_json_file, 'w', 'utf-8') as fp:
+        json.dump(draw_differences, fp, ensure_ascii=False, indent=4)
 
     img_file = ftp_root+url+'_'+sut_name+'.png'
     result_image.save(img_file)
