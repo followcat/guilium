@@ -50,6 +50,7 @@ def markelements(img, results, ignore=IGNORE_PIXEL_NUMBER):
     body = results[-1]
     width_diff = ignore
     is_draw = False
+    draw_results = []
     if body[5] == 'unmatch' and body[-1]['name'] == 'BODY':
         width_diff = body[-1]['width']
         width = body[1]+body[3]
@@ -68,9 +69,11 @@ def markelements(img, results, ignore=IGNORE_PIXEL_NUMBER):
         bottom, right = top+height, left+width
         if each[5] == 'extra':
             drawer.rectangle((left, top, right, bottom), outline='green')
+            draw_results.append(each)
             is_draw = True
         elif each[5] == 'miss':
             drawer.rectangle((left, top, right, bottom), outline='blue')
+            draw_results.append(each)
             is_draw = True
         elif each[5] == 'unmatch':
             for key, value in each[-1].items():
@@ -85,8 +88,9 @@ def markelements(img, results, ignore=IGNORE_PIXEL_NUMBER):
             if each[2] > 500:
                 continue
             drawer.rectangle((left, top, right, bottom), outline='red')
+            draw_results.append(each)
             is_draw = True
-    return is_draw
+    return is_draw, draw_results
 
 def report(differences, storage, sut_name, stub_name, url):
     stack = storage.get()
@@ -139,9 +143,13 @@ def report(differences, storage, sut_name, stub_name, url):
     for crop, paste in stub_crop_paste:
         result_image.paste(stubShot.crop(crop), paste)
     update_differences = reset_differences(differences)
-    is_draw_diff = markelements(result_image, update_differences)
+    is_draw_diff, draw_differences = markelements(result_image, update_differences)
     if not is_draw_diff:
         return
+    draw_json_file = ftp_root+url+'_'+sut_name+'_draw.json'
+    with open(draw_json_file, 'w') as fp:
+        json.dump(draw_differences, fp)
+
     img_file = ftp_root+url+'_'+sut_name+'.png'
     result_image.save(img_file)
 
@@ -156,16 +164,19 @@ def report(differences, storage, sut_name, stub_name, url):
 
     host_ip = "10.0.0.119" #TODO set to the jenkins server ip address
     json_link = 'ftp://%s/'%host_ip + json_file[json_file.index("reports/")+8:]
+    draw_json_link = 'ftp://%s/'%host_ip + draw_json_file[draw_json_file.index("reports/")+8:]
     image_link = 'ftp://%s/'%host_ip + img_file[img_file.index("reports/")+8:]
     pieces_link = 'ftp://%s/'%host_ip + pieces_dir[pieces_dir.index("reports/")+8:]
     raise validator.error.TestError("%d differences found in "
                 "positions %s... "
                 "\nSee differences %s"
+                "\nDraw differences %s"
                 "\nFull Image %s"
                 "\nDifference Image Pieces %s"
                 %(len(differences),
                   str((differences[0][0], differences[0][1])),
                   json_link,
+                  draw_json_link,
                   image_link,
                   pieces_link))
 
