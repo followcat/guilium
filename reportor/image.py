@@ -131,9 +131,6 @@ def report(differences, storage, sut_name, stub_name, url):
     url += "_"+time.ctime().replace(" ", "_")
     url = url.replace(":", "").replace("/", "")
     ftp_root = "reports/"
-    json_file = ftp_root+url+'_'+sut_name+'.json'
-    with open(json_file, 'w') as fp:
-        json.dump(differences, fp)
     #paste sut and stub with gaps
     count_offsets = count_offset(differences)
     sut_crop_paste, stub_crop_paste, full_height = \
@@ -164,19 +161,16 @@ def report(differences, storage, sut_name, stub_name, url):
         piece.save(pieces_dir + '/image_piece_%s.png'%str((0, y1)))
 
     host_ip = "10.0.0.119" #TODO set to the jenkins server ip address
-    json_link = 'ftp://%s/'%host_ip + json_file[json_file.index("reports/")+8:]
     draw_json_link = 'ftp://%s/'%host_ip + draw_json_file[draw_json_file.index("reports/")+8:]
     image_link = 'ftp://%s/'%host_ip + img_file[img_file.index("reports/")+8:]
     pieces_link = 'ftp://%s/'%host_ip + pieces_dir[pieces_dir.index("reports/")+8:]
     raise validator.error.TestError("%d differences found in "
                 "positions %s... "
-                "\nSee differences %s"
                 "\nDraw differences %s"
                 "\nFull Image %s"
                 "\nDifference Image Pieces %s"
                 %(len(differences),
                   str((differences[0][0], differences[0][1])),
-                  json_link,
                   draw_json_link,
                   image_link,
                   pieces_link))
