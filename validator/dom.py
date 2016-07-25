@@ -42,7 +42,7 @@ class DomValidator(validator.base.BaseValidator):
                          'text': node['innerText'],
                          'name': node['name']}
                 return (node['top'], node['left'], node['height'], node['width'], margin, diff_type, diffs)
-            return (node['top'], node['left'], node['height'], node['width'], margin, diff_type)
+            return (node['top'], node['left'], node['height'], node['width'], margin, node['innerText'], diff_type)
 
         def compare_node(node1, node2):
             try:
