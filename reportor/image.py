@@ -45,7 +45,8 @@ def reset_differences(differences):
         return_results[_index] = _tmp
     return return_results
 
-def markelements(img, results, ignore=IGNORE_PIXEL_NUMBER):
+def markelements(img, results, ignore_scrollbar=False,
+                    ignore=IGNORE_PIXEL_NUMBER):
     rate = 0
     drawer = ImageDraw.Draw(img)
     body = results[-1]
@@ -55,14 +56,15 @@ def markelements(img, results, ignore=IGNORE_PIXEL_NUMBER):
     if body[5] == 'unmatch' and body[-1]['name'] == 'BODY':
         width_diff = body[-1]['width']
         width = body[1]+body[3]
-        if width_diff < 0:
-            rectangle = (width, body[0], width-width_diff, body[0]+body[2])
-            drawer.rectangle(rectangle, fill='green', outline='green')
-            is_draw = True
-        elif width_diff > 0:
-            rectangle = (width-width_diff, body[0], width, body[0]+body[2])
-            drawer.rectangle(rectangle, fill='blue', outline='blue')
-            is_draw = True
+        if not ignore_scrollbar:
+            if width_diff < 0:
+                rectangle = (width, body[0], width-width_diff, body[0]+body[2])
+                drawer.rectangle(rectangle, fill='green', outline='green')
+                is_draw = True
+            elif width_diff > 0:
+                rectangle = (width-width_diff, body[0], width, body[0]+body[2])
+                drawer.rectangle(rectangle, fill='blue', outline='blue')
+                is_draw = True
     for each in results:
         top, left, height, width = each[0], each[1], each[2], each[3]
         if height == 0 or width == 0:
@@ -93,7 +95,8 @@ def markelements(img, results, ignore=IGNORE_PIXEL_NUMBER):
             is_draw = True
     return is_draw, draw_results
 
-def report(differences, storage, sut_name, stub_name, url):
+def report(differences, storage, sut_name, stub_name, url,
+            ignore_scrollbar=False):
     stack = storage.get()
     sutShot = stack[sut_name][url]['image']
     stubShot = stack[stub_name][url]['image']
@@ -141,7 +144,8 @@ def report(differences, storage, sut_name, stub_name, url):
     for crop, paste in stub_crop_paste:
         result_image.paste(stubShot.crop(crop), paste)
     update_differences = reset_differences(differences)
-    is_draw_diff, draw_differences = markelements(result_image, update_differences)
+    is_draw_diff, draw_differences = \
+        markelements(result_image, update_differences, ignore_scrollbar)
     if not is_draw_diff:
         return
     draw_json_file = ftp_root+url+'_'+sut_name+'_draw.json'
