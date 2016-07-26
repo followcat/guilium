@@ -19,6 +19,7 @@ def test_actions(test, driver):
                 e.send_keys(action[-1])
             elif action[0] == 'click':
                 e.click()
+                time.sleep(3)
 
 
 class Test(core.test.Test):
