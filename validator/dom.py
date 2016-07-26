@@ -22,8 +22,7 @@ class DomValidator(validator.base.BaseValidator):
             self.nodefilter(each, l)
         for each in node['childNodes']:
             self.nodefilter(each, l)
-        if x not in l:
-            l.append(x)
+        l.append(x)
         return l
 
     def nodecomparer(self, d1, d2):
