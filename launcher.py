@@ -75,7 +75,8 @@ class Runtime(object):
         for sut_name in tests_results[test_url]:
             result = tests_results[test_url][sut_name]
             reportor.image.report(result, self.storage,
-                                   sut_name, stub_name, test_url)
+                                    sut_name, stub_name, test_url,
+                                    ignore_scrollbar=True)
 
     def imagereportall(self):
         stub_name = self.stub.name
