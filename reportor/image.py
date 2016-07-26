@@ -81,7 +81,7 @@ def markelements(img, results, ignore_scrollbar=False,
         elif each[5] == 'unmatch':
             for key, value in each[-1].items():
                 if key in ['width', 'left']:
-                    if math.fabs(value) >= max(ignore, math.fabs(width_diff)):
+                    if math.fabs(value) > max(ignore, math.fabs(width_diff)):
                         break
                 elif key in ['top', 'height']:
                     if math.fabs(value) >= ignore:
