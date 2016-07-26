@@ -33,6 +33,8 @@ class DesktopConnector(engine.connector.base.Connector):
 
     def start_ie(self):
         desired_caps = selenium.webdriver.DesiredCapabilities.INTERNETEXPLORER
+        desired_caps['ignoreZoomSetting'] = True
+        desired_caps['nativeEvents'] = False
         driver = selenium.webdriver.Remote(command_executor=self.command_executor, desired_capabilities=desired_caps)
         return driver
 
