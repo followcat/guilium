@@ -36,6 +36,10 @@ class Guilium(nose.plugins.Plugin):
                           dest='runlog',
                           default=False,
                           help="if run from the log file")
+        parser.add_option('--ignore-scrollbar', action='store_true',
+                          dest='ignore_scrollbar',
+                          default=False,
+                          help="if ignore the width difference of vertical scroll bar")
         parser.add_option('--config-file', action='store',
                           dest='config_file',
                           default='./test/config.json',
@@ -124,7 +128,9 @@ class TestRunner(nose.core.TextTestRunner):
         result = self._makeResult()
         start = time.time()
 
-        runtime = launcher.Runtime(self.config.options.config_file)
+        options = self.config.options
+        runtime = launcher.Runtime(options.config_file,
+                    ignore_scrollbar=options.ignore_scrollbar)
         runtime.setup_environment()
         runtime.start_test()
         setattr(test.config, 'runtime', runtime)
