@@ -11,9 +11,10 @@ import reportor.image
 
 class Runtime(object):
     """"""
-    def __init__(self, config_file):
+    def __init__(self, config_file, ignore_scrollbar=False):
         self.suts = {}
         self.stub = None
+        self.ignore_scrollbar = ignore_scrollbar
         try:
             self.config = json.load(open(config_file))
         except ValueError:
@@ -76,7 +77,7 @@ class Runtime(object):
             result = tests_results[test_url][sut_name]
             reportor.image.report(result, self.storage,
                                     sut_name, stub_name, test_url,
-                                    ignore_scrollbar=True)
+                                    ignore_scrollbar=self.ignore_scrollbar)
 
     def imagereportall(self):
         stub_name = self.stub.name
