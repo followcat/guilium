@@ -11,6 +11,9 @@
   <f:entry title="Test plan" field="tplan">
     <f:textarea />
 	</f:entry>
+  <f:entry title="Ignore scrollbar width" field="ignoreScrollBar">
+    <f:checkbox name="ignoreScrollBar" checked="${instance.ignoreScrollBar}"/>
+	</f:entry>
   <!--
     If you have multiple properties that need to be configured, add more <f:entry />s
   -->
