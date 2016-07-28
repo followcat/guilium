@@ -10,11 +10,7 @@ import ImageDraw
 import validator.error
 
 
-HORIZONTAL_TOLERANCE = 10
-VERTICAL_TOLERANCE = 10
-
-
-def reset_differences(differences):
+def reset_differences(differences, vertical_offsets):
     """
         >>> import json
         >>> import reportor.image
@@ -30,11 +26,10 @@ def reset_differences(differences):
         ...                 print(d[-1])
         ...                 break
     """
-    count_offsets = count_offset(differences)
     return_results = list(differences)
     for _index, each in enumerate(return_results):
         _tmp = list(each)
-        for top, offset in count_offsets:
+        for top, offset in vertical_offsets:
             if offset < 0 and each[5] in ['miss', 'unmatch']:
                 if each[0] >= top:
                     _tmp[0] -= offset
@@ -47,146 +42,42 @@ def reset_differences(differences):
         return_results[_index] = _tmp
     return return_results
 
-def markelements(img, results, ignore_scrollbar=False):
-    rate = 0
-    drawer = ImageDraw.Draw(img)
-    body = results[-1]
-    width_diff = HORIZONTAL_TOLERANCE
-    is_draw = False
-    draw_results = []
-    if body[5] == 'unmatch' and body[-1]['name'] == 'BODY':
-        width_diff = body[-1]['width']
-        width = body[1]+body[3]
-        if not ignore_scrollbar:
-            if width_diff < 0:
-                rectangle = (width, body[0], width-width_diff, body[0]+body[2])
-                drawer.rectangle(rectangle, fill='green', outline='green')
-                is_draw = True
-            elif width_diff > 0:
-                rectangle = (width-width_diff, body[0], width, body[0]+body[2])
-                drawer.rectangle(rectangle, fill='blue', outline='blue')
-                is_draw = True
-        width_diff = max(HORIZONTAL_TOLERANCE, math.fabs(width_diff))
-    for each in results:
-        top, left, height, width = each[0], each[1], each[2], each[3]
-        if height == 0 or width == 0:
-            continue
-        bottom, right = top+height, left+width
-        if each[5] == 'extra':
-            drawer.rectangle((left, top, right, bottom), outline='green')
-            draw_results.append(each)
-            is_draw = True
-        elif each[5] == 'miss':
-            drawer.rectangle((left, top, right, bottom), outline='blue')
-            draw_results.append(each)
-            is_draw = True
-        elif each[5] == 'unmatch':
-            for key, value in each[-1].items():
-                if key in ['width', 'left']:
-                    if math.fabs(value) > width_diff:
-                        break
-                elif key in ['top', 'height']:
-                    if math.fabs(value) > VERTICAL_TOLERANCE:
-                        break
-            else:
-                continue
-            if each[2] > 500:
-                continue
-            drawer.rectangle((left, top, right, bottom), outline='red')
-            draw_results.append(each)
-            is_draw = True
-    return is_draw, draw_results
 
-def report(differences, storage, sut_name, stub_name, url,
-            ignore_scrollbar=False):
-    stack = storage.get()
-    sutShot = stack[sut_name][url]['image']
-    stubShot = stack[stub_name][url]['image']
+def scale_image(image1, image2):
+    image1_width, image1_height = image1.size
+    image2_width, image2_height = image2.size
+    if image1_width == image2_width:
+        return
+    #scale to the same width
+    if image2_width > image1_width:
+        if image2_width%image1_width == 0:
+            scale = float(image1_width)/float(image2_width)
+            image2 = image2.resize((image1_width, int(image2_height*scale)))
+    elif image2_width < image1_width:
+        if image1_width%image2_width == 0:
+            scale = float(image2_width)/float(image1_width)
+            image1 = image1.resize((image2_width, int(image1_height*scale)))
+
+
+def compose_image(sutShot, stubShot, vertical_offsets):
     sut_width, sut_height = sutShot.size
     stub_width, stub_height = stubShot.size
-    #scale to the same width
-    if stub_width > sut_width:
-        if stub_width%sut_width == 0:
-            scale = float(sut_width)/float(stub_width)
-            stubShot = stubShot.resize((sut_width, int(stub_height*scale)))
-            stub_width, stub_height = stubShot.size
-    elif stub_width < sut_width:
-        if sut_width%stub_width == 0:
-            scale = float(stub_width)/float(sut_width)
-            sutShot = sutShot.resize((stub_width, int(sut_height*scale)))
-            sut_width, sut_height = sutShot.size
-    #select differences
-    limit_diffs = []
-    for diff in differences:
-        #ignore no sence record
-        if diff[0] + diff[1] + diff[2] + diff[3] == 0:
-            continue
-        limit_diffs.append(diff)
-    differences = limit_diffs
-    if len(differences) == 0:
-        return
-    #text report
-    url = url[0]
-    index = len(url)
-    try:
-        index = url.index('?')
-    except ValueError:
-        pass
-    url = url[:index]
-    url += "_"+time.ctime().replace(" ", "_")
-    url = url.replace(":", "").replace("/", "")
-    ftp_root = "reports/"
-    #paste sut and stub with gaps
-    count_offsets = count_offset(differences)
     sut_crop_paste, stub_crop_paste, full_height = \
-        get_crop_paste(count_offsets, sut_height, sut_width, stub_height, stub_width)
+        get_crop_paste(vertical_offsets, sut_height, sut_width, stub_height, stub_width)
     result_image = Image.new('RGBA', (sut_width+stub_width, full_height))
     for crop, paste in sut_crop_paste:
         result_image.paste(sutShot.crop(crop), paste)
     for crop, paste in stub_crop_paste:
         result_image.paste(stubShot.crop(crop), paste)
-    update_differences = reset_differences(differences)
-    is_draw_diff, draw_differences = \
-        markelements(result_image, update_differences, ignore_scrollbar)
-    if not is_draw_diff:
-        return
-    draw_json_file = ftp_root+url+'_'+sut_name+'_draw.json'
-    with codecs.open(draw_json_file, 'w', 'utf-8') as fp:
-        json.dump(draw_differences, fp, ensure_ascii=False, indent=4)
+    return result_image
 
-    img_file = ftp_root+url+'_'+sut_name+'.png'
-    result_image.save(img_file)
-
-    #image pieces
-    pieces_dir = ftp_root+url+'_'+sut_name
-    if not os.path.exists(pieces_dir):
-        os.mkdir(pieces_dir)
-    ch = 20
-    for (y1, y2) in get_offset(update_differences):
-        piece = result_image.crop((0, y1-ch, sut_width+stub_width, y2+ch))
-        piece.save(pieces_dir + '/image_piece_%s.png'%str((0, y1)))
-
-    host_ip = "10.0.0.119" #TODO set to the jenkins server ip address
-    draw_json_link = 'ftp://%s/'%host_ip + draw_json_file[draw_json_file.index("reports/")+8:]
-    image_link = 'ftp://%s/'%host_ip + img_file[img_file.index("reports/")+8:]
-    pieces_link = 'ftp://%s/'%host_ip + pieces_dir[pieces_dir.index("reports/")+8:]
-    raise validator.error.TestError("%d differences found in "
-                "positions %s... "
-                "\nDraw differences %s"
-                "\nFull Image %s"
-                "\nDifference Image Pieces %s"
-                %(len(differences),
-                  str((differences[0][0], differences[0][1])),
-                  draw_json_link,
-                  image_link,
-                  pieces_link))
 
 def get_crop_paste(offsets, sut_height, sut_width, stub_height, stub_width):
     """
         >>> import json
         >>> import reportor.image
         >>> differences = json.load(open('/tmp/http10.0.0.1195000mismatch_Galaxy_S4.json'))
-        >>> offsets = reportor.image.count_offset(differences)
+        >>> offsets = reportor.image.get_vertical_offsets(differences)
         >>> sut_cp, stub_cp, full_height = reportor.image.get_crop_paste(offsets, 5000, 360, 5000, 360)
         >>> for c, p in stub_cp:
         ...     print(c,p)
@@ -217,65 +108,189 @@ def get_crop_paste(offsets, sut_height, sut_width, stub_height, stub_width):
     return sut_cp, stub_cp, full_height
 
 
-def get_offset(differences):
-    """
-        >>> import json
-        >>> import reportor.image
-        >>> differences = json.load(open('/tmp/http10.0.0.1195000mismatch_Galaxy_S4.json'))
-        >>> for (y1, y2) in reportor.image.get_offset(differences).items():
-        ...     print(y1, y2)
-    """
-    if len(differences) > 0:
-        y1 = differences[0][0] - differences[0][4]['marginTop']
-        y2 = differences[0][0] + differences[0][2] + differences[0][4]['marginBottom']
-    res = []
-    for _index, diff in enumerate(differences):
-        if diff[2] > 400 or diff[2] == 0:
-                continue
-        if diff[0] > y2 + 100:
-            if (y1, y2) not in res:
-                res.append((y1, y2))
-            y1 = diff[0] - diff[4]['marginTop']
-            y2 = diff[0] + diff[2] + diff[4]['marginBottom']
-        if diff[0] - diff[4]['marginTop'] < y1:
-            y1 = diff[0] - diff[4]['marginTop']
-        if diff[0] + diff[2] + diff[4]['marginBottom'] > y2:
-            y2 = diff[0] + diff[2] + diff[4]['marginBottom']
-    if (y1, y2) not in res:
-        res.append((y1, y2))
-    return res
+class Reportor(object):
 
-def count_offset(differences):
-    """
-        >>> import json
-        >>> import reportor.image
-        >>> differences = json.load(open('results/full_IE_sut.json'))
-        >>> for offset in reportor.image.count_offset(differences):
-        ...     print(str(offset))
-    """
-    offsets = []
-    history_offset = 0
-    for _index, diff in enumerate(differences):
-        if diff[5] == 'unmatch':
-            if math.fabs(diff[-1]['height']) > VERTICAL_TOLERANCE or \
-                math.fabs(diff[-1]['left']) > HORIZONTAL_TOLERANCE or \
-                math.fabs(diff[-1]['width']) > HORIZONTAL_TOLERANCE:
-                continue
-            offset = diff[-1]['top'] - history_offset
-            if diff[-1]['top'] == 0 or math.fabs(offset) <= VERTICAL_TOLERANCE:
-                continue
-            top = diff[0] - diff[4]['marginTop']
-            # check if the top line cut any element
-            for _d in differences:
-                if _d == diff or _d[5] == 'extra':
+    def __init__(self, ignore_scrollbar=False, horizontal_tolerance=10,
+                    vertical_tolerance=10):
+        self.ignore_scrollbar = ignore_scrollbar
+        self.horizontal_tolerance = horizontal_tolerance
+        self.vertical_tolerance = vertical_tolerance
+
+    def get_vertical_offsets(self, differences):
+        """
+            >>> import json
+            >>> import reportor.image
+            >>> differences = json.load(open('results/full_IE_sut.json'))
+            >>> for offset in reportor.image.get_vertical_offsets(differences):
+            ...     print(str(offset))
+        """
+        offsets = []
+        history_offset = 0
+        for _index, diff in enumerate(differences):
+            if diff[5] == 'unmatch':
+                if (math.fabs(diff[-1]['height']) > self.vertical_tolerance or
+                    math.fabs(diff[-1]['left']) > self.horizontal_tolerance or
+                    math.fabs(diff[-1]['width']) > self.horizontal_tolerance):
                     continue
-                if (_d[0] - _d[4]['marginTop']) < (diff[0] - diff[4]['marginTop']) < (_d[0] + _d[2] + _d[4]['marginBottom']):
-                    if  _d[0] < (diff[0] + diff[2]) <= (_d[0] + _d[2]) and \
-                        _d[1] <= diff[1] < (_d[1] + _d[3]) and \
-                        _d[1] < (diff[1] + diff[3]) <= (_d[1] + _d[3]):
+                offset = diff[-1]['top'] - history_offset
+                if diff[-1]['top'] == 0 or \
+                    math.fabs(offset) <= self.vertical_tolerance:
+                    continue
+                top = diff[0] - diff[4]['marginTop']
+                # check if the top line cut any element
+                for _d in differences:
+                    if _d == diff or _d[5] == 'extra':
                         continue
-                    break
-            else:
-                history_offset += offset
-                offsets.append((top, offset))
-    return offsets
+                    _mt = _d[4]['marginTop']
+                    _mb = _d[4]['marginBottom']
+                    if (_d[0] - _mt) < top < (_d[0] + _d[2] + _mb):
+                        if (_d[0] < (diff[0] + diff[2]) <= (_d[0] + _d[2]) and
+                            _d[1] <= diff[1] < (_d[1] + _d[3]) and
+                            _d[1] < (diff[1] + diff[3]) <= (_d[1] + _d[3])):
+                            continue
+                        break
+                else:
+                    history_offset += offset
+                    offsets.append((top, offset))
+        return offsets
+
+    def markelements(self, img, results):
+        rate = 0
+        drawer = ImageDraw.Draw(img)
+        body = results[-1]
+        width_diff = self.horizontal_tolerance
+        drawn_results = []
+        if body[5] == 'unmatch' and body[-1]['name'] == 'BODY':
+            width_diff = body[-1]['width']
+            if not self.ignore_scrollbar:
+                width = body[1]+body[3]
+                height = body[0]+body[2]
+                if width_diff < 0:
+                    rectangle = (width, body[0], width-width_diff, height)
+                    drawer.rectangle(rectangle, fill='green', outline='green')
+                elif width_diff > 0:
+                    rectangle = (width-width_diff, body[0], width, height)
+                    drawer.rectangle(rectangle, fill='blue', outline='blue')
+            width_diff = math.fabs(width_diff)
+        for each in results:
+            top, left, height, width = each[0], each[1], each[2], each[3]
+            if height == 0 or width == 0:
+                continue
+            bottom, right = top+height, left+width
+            if each[5] == 'extra':
+                drawer.rectangle((left, top, right, bottom), outline='green')
+                drawn_results.append(each)
+            elif each[5] == 'miss':
+                drawer.rectangle((left, top, right, bottom), outline='blue')
+                drawn_results.append(each)
+            elif each[5] == 'unmatch':
+                if each[2] > 500:
+                    continue
+                for key, value in each[-1].items():
+                    if key in ['width', 'left']:
+                        if math.fabs(value) > max(self.horizontal_tolerance, width_diff):
+                            break
+                    elif key in ['top', 'height']:
+                        if math.fabs(value) > self.vertical_tolerance:
+                            break
+                else:
+                    continue
+                drawer.rectangle((left, top, right, bottom), outline='red')
+                drawn_results.append(each)
+        return drawn_results
+
+    def vertical_split(self, differences, context_height=20):
+        """
+            >>> import json
+            >>> import reportor.image
+            >>> differences = json.load(open('/tmp/http10.0.0.1195000mismatch_Galaxy_S4.json'))
+            >>> for (y1, y2) in reportor.image.vertical_split(differences).items():
+            ...     print(y1, y2)
+        """
+        if len(differences) > 0:
+            y1 = differences[0][0] - differences[0][4]['marginTop']
+            y2 = differences[0][0] + differences[0][2] + differences[0][4]['marginBottom']
+        res = []
+        for _index, diff in enumerate(differences):
+            if diff[2] > 400 or diff[2] == 0:
+                    continue
+            if diff[0] > y2 + 100:
+                if (y1-context_height, y2+context_height) not in res:
+                    res.append((y1-context_height, y2+context_height))
+                y1 = diff[0] - diff[4]['marginTop']
+                y2 = diff[0] + diff[2] + diff[4]['marginBottom']
+            if diff[0] - diff[4]['marginTop'] < y1:
+                y1 = diff[0] - diff[4]['marginTop']
+            if diff[0] + diff[2] + diff[4]['marginBottom'] > y2:
+                y2 = diff[0] + diff[2] + diff[4]['marginBottom']
+        if (y1-context_height, y2+context_height) not in res:
+            res.append((y1-context_height, y2+context_height))
+        return res
+
+    def report(self, differences, storage, sut_name, stub_name, url):
+        #select differences
+        limit_diffs = []
+        for diff in differences:
+            #ignore no sence record
+            if diff[0] + diff[1] + diff[2] + diff[3] == 0:
+                continue
+            limit_diffs.append(diff)
+        differences = limit_diffs
+        if len(differences) == 0:
+            return
+
+        stack = storage.get()
+        sutShot = stack[sut_name][url]['image']
+        stubShot = stack[stub_name][url]['image']
+        scale_image(sutShot, stubShot)
+
+        #paste sut and stub with gaps
+        vertical_offsets = self.get_vertical_offsets(differences)
+        updated_differences = reset_differences(differences, vertical_offsets)
+        full_image = compose_image(sutShot, stubShot, vertical_offsets)
+        drawn_differences = self.markelements(full_image, updated_differences)
+        if len(drawn_differences) == 0:
+            return
+
+        url = url[0]
+        index = len(url)
+        try:
+            index = url.index('?')
+        except ValueError:
+            pass
+        url = url[:index]
+        url += "_"+time.ctime().replace(" ", "_")
+        url = url.replace(":", "_").replace("/", "")
+        ftp_root = "reports/"
+
+        #text report
+        drawn_json_file = ftp_root+url+'_'+sut_name+'_drawn.json'
+        with codecs.open(drawn_json_file, 'w', 'utf-8') as fp:
+            json.dump(drawn_differences, fp, ensure_ascii=False, indent=4)
+
+        #full image report
+        img_file = ftp_root+url+'_'+sut_name+'.png'
+        full_image.save(img_file)
+
+        #image pieces of differences
+        pieces_dir = ftp_root+url+'_'+sut_name
+        if not os.path.exists(pieces_dir):
+            os.mkdir(pieces_dir)
+        full_width = sutShot.size[0] + stubShot.size[0]
+        for (y1, y2) in self.vertical_split(updated_differences):
+            piece = full_image.crop((0, y1, full_width, y2))
+            piece.save(pieces_dir + '/image_piece_%s.png'%str((0, y1)))
+
+        host_ip = "10.0.0.119" #TODO set to the jenkins server ip address
+
+        drawn_json_link = 'ftp://%s/'%host_ip + drawn_json_file[drawn_json_file.index("reports/")+8:]
+        image_link = 'ftp://%s/'%host_ip + img_file[img_file.index("reports/")+8:]
+        pieces_link = 'ftp://%s/'%host_ip + pieces_dir[pieces_dir.index("reports/")+8:]
+        raise validator.error.TestError("%d differences found!"
+                                        "\nDraw differences %s"
+                                        "\nFull Image %s"
+                                        "\nDifference Image Pieces %s"
+                                        %(len(drawn_differences),
+                                          drawn_json_link,
+                                          image_link,
+                                          pieces_link))
