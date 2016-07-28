@@ -11,7 +11,7 @@ import reportor.image
 
 class Runtime(object):
     """"""
-    def __init__(self, config_file, ignore_scrollbar=False):
+    def __init__(self, config_file, report_kwargs):
         self.suts = {}
         self.stub = None
         try:
@@ -24,7 +24,7 @@ class Runtime(object):
         self.communication_cls = core.communication.Communication
         self.setup_environment()
         self.validator = [validator.dom.DomValidator()]
-        self.reportor = reportor.image.Reportor(ignore_scrollbar)
+        self.reportor = reportor.image.Reportor(**report_kwargs)
 
     def setup_environment(self):
         for sut in self.config['sut']:
