@@ -48,12 +48,16 @@ public class GuiliumBuilder extends Builder {
     private final String cfile;
     private final String tplan;
     private boolean ignoreScrollBar;
+    private final String horizontalTolerance;
+    private final String verticalTolerance;
 
     @DataBoundConstructor
-    public GuiliumBuilder(String cfile, String tplan, boolean ignoreScrollBar) {
+    public GuiliumBuilder(String cfile, String tplan, boolean ignoreScrollBar, String horizontalTolerance, String verticalTolerance) {
         this.cfile = cfile;
         this.tplan = tplan;
         this.ignoreScrollBar = ignoreScrollBar;
+        this.horizontalTolerance = horizontalTolerance;
+        this.verticalTolerance = verticalTolerance;
     }
 
     public String getCfile() {
@@ -63,13 +67,20 @@ public class GuiliumBuilder extends Builder {
     public String getTplan() {
         return tplan;
     }
-
     public void setIgnoreScrollBar(boolean ignoreScrollBar) {
         this.ignoreScrollBar = ignoreScrollBar;
     }
 
     public boolean getIgnoreScrollBar() {
         return ignoreScrollBar;
+    }
+
+    public String getHorizontalTolerance() {
+        return horizontalTolerance;
+    }
+
+    public String getVerticalTolerance() {
+        return verticalTolerance;
     }
 
     private boolean saveJsonFile(String content, String absPath) throws IOException{
@@ -129,6 +140,8 @@ public class GuiliumBuilder extends Builder {
             listener.getLogger().println("Exception "+ e.getMessage());
         }
         String command = "python nose_plugin/plugin.py --with-guilium --config-file="+config_file+" --test-file="+test_plan_file+" test/test_plan.py -v";
+        command += " --horizontal-tolerance=" + horizontalTolerance;
+        command += " --vertical-tolerance=" + verticalTolerance;
         if (this.ignoreScrollBar) {
             command += " --ignore-scrollbar";
         }

@@ -14,6 +14,12 @@
   <f:entry title="Ignore scrollbar width" field="ignoreScrollBar">
     <f:checkbox name="ignoreScrollBar" checked="${instance.ignoreScrollBar}"/>
 	</f:entry>
+  <f:entry title="Horizontal tolerance (pixels)" field="horizontalTolerance">
+    <f:textbox />
+	</f:entry>
+  <f:entry title="Vertical tolerance (pixels)" field="verticalTolerance">
+    <f:textbox />
+	</f:entry>
   <!--
     If you have multiple properties that need to be configured, add more <f:entry />s
   -->
