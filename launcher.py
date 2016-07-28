@@ -14,7 +14,6 @@ class Runtime(object):
     def __init__(self, config_file, ignore_scrollbar=False):
         self.suts = {}
         self.stub = None
-        self.ignore_scrollbar = ignore_scrollbar
         try:
             self.config = json.load(open(config_file))
         except ValueError:
@@ -25,6 +24,7 @@ class Runtime(object):
         self.communication_cls = core.communication.Communication
         self.setup_environment()
         self.validator = [validator.dom.DomValidator()]
+        self.reportor = reportor.image.Reportor(ignore_scrollbar)
 
     def setup_environment(self):
         for sut in self.config['sut']:
@@ -75,9 +75,8 @@ class Runtime(object):
         tests_results = self.validate_results.get()
         for sut_name in tests_results[test_url]:
             result = tests_results[test_url][sut_name]
-            reportor.image.report(result, self.storage,
-                                    sut_name, stub_name, test_url,
-                                    ignore_scrollbar=self.ignore_scrollbar)
+            self.reportor.report(result, self.storage,
+                                    sut_name, stub_name, test_url)
 
     def imagereportall(self):
         stub_name = self.stub.name
