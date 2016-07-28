@@ -10,7 +10,9 @@ import ImageDraw
 import validator.error
 
 
-IGNORE_PIXEL_NUMBER = 10
+HORIZONTAL_TOLERANCE = 10
+VERTICAL_TOLERANCE = 10
+
 
 def reset_differences(differences):
     """
@@ -45,12 +47,11 @@ def reset_differences(differences):
         return_results[_index] = _tmp
     return return_results
 
-def markelements(img, results, ignore_scrollbar=False,
-                    ignore=IGNORE_PIXEL_NUMBER):
+def markelements(img, results, ignore_scrollbar=False):
     rate = 0
     drawer = ImageDraw.Draw(img)
     body = results[-1]
-    width_diff = ignore
+    width_diff = HORIZONTAL_TOLERANCE
     is_draw = False
     draw_results = []
     if body[5] == 'unmatch' and body[-1]['name'] == 'BODY':
@@ -65,6 +66,7 @@ def markelements(img, results, ignore_scrollbar=False,
                 rectangle = (width-width_diff, body[0], width, body[0]+body[2])
                 drawer.rectangle(rectangle, fill='blue', outline='blue')
                 is_draw = True
+        width_diff = max(HORIZONTAL_TOLERANCE, math.fabs(width_diff))
     for each in results:
         top, left, height, width = each[0], each[1], each[2], each[3]
         if height == 0 or width == 0:
@@ -81,10 +83,10 @@ def markelements(img, results, ignore_scrollbar=False,
         elif each[5] == 'unmatch':
             for key, value in each[-1].items():
                 if key in ['width', 'left']:
-                    if math.fabs(value) > max(ignore, math.fabs(width_diff)):
+                    if math.fabs(value) > width_diff:
                         break
                 elif key in ['top', 'height']:
-                    if math.fabs(value) >= ignore:
+                    if math.fabs(value) > VERTICAL_TOLERANCE:
                         break
             else:
                 continue
@@ -255,26 +257,25 @@ def count_offset(differences):
     history_offset = 0
     for _index, diff in enumerate(differences):
         if diff[5] == 'unmatch':
-            for _key in ['left', 'height', 'width']:
-                #not counting offsides on the difference
-                if math.fabs(diff[-1][_key]) > IGNORE_PIXEL_NUMBER:
+            if math.fabs(diff[-1]['height']) > VERTICAL_TOLERANCE or \
+                math.fabs(diff[-1]['left']) > HORIZONTAL_TOLERANCE or \
+                math.fabs(diff[-1]['width']) > HORIZONTAL_TOLERANCE:
+                continue
+            offset = diff[-1]['top'] - history_offset
+            if diff[-1]['top'] == 0 or math.fabs(offset) <= VERTICAL_TOLERANCE:
+                continue
+            top = diff[0] - diff[4]['marginTop']
+            # check if the top line cut any element
+            for _d in differences:
+                if _d == diff or _d[5] == 'extra':
+                    continue
+                if (_d[0] - _d[4]['marginTop']) < (diff[0] - diff[4]['marginTop']) < (_d[0] + _d[2] + _d[4]['marginBottom']):
+                    if  _d[0] < (diff[0] + diff[2]) <= (_d[0] + _d[2]) and \
+                        _d[1] <= diff[1] < (_d[1] + _d[3]) and \
+                        _d[1] < (diff[1] + diff[3]) <= (_d[1] + _d[3]):
+                        continue
                     break
             else:
-                offset = diff[-1]['top'] - history_offset
-                if diff[-1]['top'] == 0 or math.fabs(offset) < IGNORE_PIXEL_NUMBER:
-                    continue
-                top = diff[0] - diff[4]['marginTop']
-                # check if the top line cut any element
-                for _d in differences:
-                    if _d == diff or _d[5] == 'extra':
-                        continue
-                    if (_d[0] - _d[4]['marginTop']) < (diff[0] - diff[4]['marginTop']) < (_d[0] + _d[2] + _d[4]['marginBottom']):
-                        if  _d[0] < (diff[0] + diff[2]) <= (_d[0] + _d[2]) and \
-                            _d[1] <= diff[1] < (_d[1] + _d[3]) and \
-                            _d[1] < (diff[1] + diff[3]) <= (_d[1] + _d[3]):
-                            continue
-                        break
-                else:
-                    history_offset += offset
-                    offsets.append((top, offset))
+                history_offset += offset
+                offsets.append((top, offset))
     return offsets
