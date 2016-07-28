@@ -40,6 +40,14 @@ class Guilium(nose.plugins.Plugin):
                           dest='ignore_scrollbar',
                           default=False,
                           help="if ignore the width difference of vertical scroll bar")
+        parser.add_option('--horizontal-tolerance', action='store',
+                          dest='horizontal_tolerance',
+                          default=10,
+                          help="Set horizontal difference tolerance in pixels")
+        parser.add_option('--vertical-tolerance', action='store',
+                          dest='vertical_tolerance',
+                          default=10,
+                          help="Set vertical difference tolerance in pixels")
         parser.add_option('--config-file', action='store',
                           dest='config_file',
                           default='./test/config.json',
@@ -128,9 +136,11 @@ class TestRunner(nose.core.TextTestRunner):
         result = self._makeResult()
         start = time.time()
 
-        options = self.config.options
-        runtime = launcher.Runtime(options.config_file,
-                    ignore_scrollbar=options.ignore_scrollbar)
+        opts = self.config.options
+        report_opts = {'ignore_scrollbar': opts.ignore_scrollbar,
+                       'horizontal_tolerance': int(opts.horizontal_tolerance),
+                       'vertical_tolerance': int(opts.vertical_tolerance)}
+        runtime = launcher.Runtime(opts.config_file, report_opts)
         runtime.setup_environment()
         runtime.start_test()
         setattr(test.config, 'runtime', runtime)
