@@ -5,22 +5,23 @@
     See global.jelly for a general discussion about jelly script.
   -->
   <local:tabBar xmlns:local="/hudson/plugins/guilium_plugin/GuiliumBuilder" />
-  <f:entry title="Config file" field="cfile">
-    <f:textarea />
-	</f:entry>
-  <f:entry title="Test plan" field="tplan">
-    <f:textarea />
-	</f:entry>
-  <f:entry title="Ignore scrollbar width" field="ignoreScrollBar">
-    <f:checkbox name="ignoreScrollBar" checked="${instance.ignoreScrollBar}"/>
-	</f:entry>
-  <f:entry title="Horizontal tolerance (pixels)" field="horizontalTolerance">
-    <f:textbox />
-	</f:entry>
-  <f:entry title="Vertical tolerance (pixels)" field="verticalTolerance">
-    <f:textbox />
-	</f:entry>
-  <!--
-    If you have multiple properties that need to be configured, add more <f:entry />s
-  -->
+  <f:section title="Pre-test Options">
+      <f:entry title="Configration" field="cfile">
+        <f:textarea />
+        </f:entry>
+      <f:entry title="Test URL/Action List" field="tplan">
+        <f:textarea />
+        </f:entry>
+  </f:section>
+  <f:section title="Report Options">
+      <f:entry title="Ignore Scrollbar Width" field="ignoreScrollBar">
+        <f:checkbox name="ignoreScrollBar" checked="${instance.ignoreScrollBar}"/>
+        </f:entry>
+      <f:entry title="Horizontal Tolerance (pixels)" field="horizontalTolerance">
+        <f:textbox />
+        </f:entry>
+      <f:entry title="Vertical Tolerance (pixels)" field="verticalTolerance">
+        <f:textbox />
+        </f:entry>
+  </f:section>
 </j:jelly>
