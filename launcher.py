@@ -58,7 +58,8 @@ class Runtime(object):
             time.sleep(0.1)
             for component in [self.stub] + self.suts.values():
                 if component.name in stack and \
-                    test.test_url in stack[component.name]:
+                    (test.test_url in stack[component.name] or
+                        not component.is_alive()):
                     continue
                 else:
                     break
