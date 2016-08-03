@@ -1,13 +1,20 @@
 import time
 import functools
 
+import re
 import json
+import urllib
 
 import core.test
 
 
 def test_actions(test, driver):
     url, actions = test
+    url = urllib.unquote(url)
+    pattern = re.compile('=([^&]*)')
+    args = pattern.findall(url)
+    for arg in args:
+        url = url.replace(arg, urllib.quote(arg.encode('utf')))
     for action in actions:
         if action == 'get' or action[0] == 'get':
             driver.get(url)
