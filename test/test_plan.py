@@ -8,13 +8,19 @@ import urllib
 import core.test
 
 
+def url_encode(url):
+    ret_url = urllib.unquote(url)
+    if isinstance(ret_url, unicode):
+        ret_url = ret_url.encode('utf')
+    pattern = re.compile('=([^&]*)')
+    args = pattern.findall(ret_url)
+    for arg in args:
+        ret_url = ret_url.replace(arg, urllib.quote(arg))
+    return ret_url
+
 def test_actions(test, driver):
     url, actions = test
-    url = urllib.unquote(url)
-    pattern = re.compile('=([^&]*)')
-    args = pattern.findall(url)
-    for arg in args:
-        url = url.replace(arg, urllib.quote(arg.encode('utf')))
+    url = url_encode(url)
     for action in actions:
         if action == 'get' or action[0] == 'get':
             driver.get(url)
