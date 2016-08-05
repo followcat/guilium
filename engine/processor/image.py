@@ -88,6 +88,8 @@ def ignore_fixed_element(driver):
         },100);
     """
     driver.execute_script(jscodes)
+    #wait for js process
+    time.sleep(1)
 
 
 def scrollfullscreen(driver):
