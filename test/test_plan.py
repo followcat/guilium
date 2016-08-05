@@ -27,6 +27,8 @@ def test_actions(test, driver):
             time.sleep(3)
         else:
             e = driver.find_element_by_xpath(action[1])
+            y = e.location['y']
+            driver.execute_script('window.scrollTo(0, %d-200);'%y)
             if action[0] == 'fill':
                 e.clear()
                 e.send_keys(action[-1])
