@@ -41,5 +41,6 @@ class Component(checkmate.core.component.Component, threading.Thread):
         return self.stack
 
     def stop(self):
-        self.stopcondition = True
-        self.engine.stop()
+        if self.is_alive():
+            self.stopcondition = True
+            self.engine.stop()

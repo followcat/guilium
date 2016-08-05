@@ -39,10 +39,14 @@ class Runtime(object):
             self.communication_cls(self.suts, self.stub, self.storage)
 
     def start_test(self):
-        for sut in self.suts.values():
-            sut.start()
-        self.stub.start()
-        self.communication.start()
+        try:
+            for sut in self.suts.values():
+                sut.start()
+            self.stub.start()
+            self.communication.start()
+        except Exception as e:
+            self.stop_test()
+            raise e
 
     def stop_test(self):
         self.stub.stop()
