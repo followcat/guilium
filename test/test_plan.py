@@ -9,9 +9,9 @@ import core.test
 
 
 def url_encode(url):
-    ret_url = urllib.unquote(url)
-    if isinstance(ret_url, unicode):
-        ret_url = ret_url.encode('utf')
+    if isinstance(url, unicode):
+        ret_url = url.encode('utf')
+    ret_url = urllib.unquote(ret_url)
     pattern = re.compile('=([^&]*)')
     args = pattern.findall(ret_url)
     for arg in args:
