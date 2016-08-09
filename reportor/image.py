@@ -37,8 +37,6 @@ def reset_differences(differences, vertical_offsets):
                     _tmp[0] -= offset
             if offset > 0 and each[5] == 'extra' and each[0] >= top:
                 _tmp[0] += offset
-            if each[0] >= top and each[5] == 'unmatch':
-                _tmp[-1]['top'] -= offset
         return_results[_index] = _tmp
     return return_results
 
@@ -120,8 +118,9 @@ class Reportor(object):
         """
             >>> import json
             >>> import reportor.image
+            >>> reportor = reportor.image.Reportor(horizontal_tolerance=5)
             >>> differences = json.load(open('results/full_IE_sut.json'))
-            >>> for offset in reportor.image.get_vertical_offsets(differences):
+            >>> for offset in reportor.get_vertical_offsets(differences):
             ...     print(str(offset))
         """
         offsets = []
@@ -132,9 +131,10 @@ class Reportor(object):
                     math.fabs(diff[-1]['left']) > self.horizontal_tolerance or
                     math.fabs(diff[-1]['width']) > self.horizontal_tolerance):
                     continue
+                if diff[-1]['top'] == 0:
+                    continue
                 offset = diff[-1]['top'] - history_offset
-                if diff[-1]['top'] == 0 or \
-                    math.fabs(offset) <= self.vertical_tolerance:
+                if math.fabs(offset) <= self.vertical_tolerance:
                     continue
                 top = diff[0] - diff[4]['marginTop']
                 # check if the top line cut any element
@@ -158,7 +158,6 @@ class Reportor(object):
         rate = 0
         drawer = ImageDraw.Draw(img)
         body = results[-1]
-        width_diff = self.horizontal_tolerance
         drawn_results = []
         if body[5] == 'unmatch' and body[-1]['name'] == 'BODY':
             width_diff = body[-1]['width']
@@ -171,7 +170,8 @@ class Reportor(object):
                 elif width_diff > 0:
                     rectangle = (width-width_diff, body[0], width, height)
                     drawer.rectangle(rectangle, fill='blue', outline='blue')
-            width_diff = math.fabs(width_diff)
+        previous_buttom = 0
+        previous_top = 0
         for each in results:
             top, left, height, width = each[0], each[1], each[2], each[3]
             if height == 0 or width == 0:
@@ -187,11 +187,20 @@ class Reportor(object):
                 if each[2] > 500:
                     continue
                 for key, value in each[-1].items():
-                    if key in ['width', 'left']:
-                        if math.fabs(value) > max(self.horizontal_tolerance, width_diff):
+                    if each[0] > previous_buttom:
+                        previous_buttom = each[0] + each[2]
+                        _top = previous_top
+                        previous_top = each[-1]['top']
+                        if math.fabs(previous_top - _top) > self.vertical_tolerance:
+                            each.append({'vertical':previous_top - _top})
                             break
-                    elif key in ['top', 'height']:
+                    if key in ['width', 'left']:
+                        if math.fabs(value) > self.horizontal_tolerance:
+                            each.append('horizontal')
+                            break
+                    elif key in ['height']:
                         if math.fabs(value) > self.vertical_tolerance:
+                            each.append('vertical')
                             break
                 else:
                     continue
@@ -227,6 +236,15 @@ class Reportor(object):
             res.append((y1-context_height, y2+context_height))
         return res
 
+    def reset_horizontal_tolerance(self, differences):
+        if not self.ignore_scrollbar:
+            return
+        body = differences[-1]
+        if body[5] == 'unmatch' and body[-1]['name'] == 'BODY':
+            width_diff = math.fabs(body[-1]['width'])
+            self.horizontal_tolerance = \
+                max(self.horizontal_tolerance, width_diff)
+
     def report(self, differences, storage, sut_name, stub_name, url):
         #select differences
         limit_diffs = []
@@ -245,6 +263,7 @@ class Reportor(object):
         scale_image(sutShot, stubShot)
 
         #paste sut and stub with gaps
+        self.reset_horizontal_tolerance(differences)
         vertical_offsets = self.get_vertical_offsets(differences)
         updated_differences = reset_differences(differences, vertical_offsets)
         full_image = compose_image(sutShot, stubShot, vertical_offsets)
