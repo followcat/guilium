@@ -108,8 +108,8 @@ def get_crop_paste(offsets, sut_height, sut_width, stub_height, stub_width):
 
 class Reportor(object):
 
-    def __init__(self, ignore_scrollbar=False, horizontal_tolerance=10,
-                    vertical_tolerance=10):
+    def __init__(self, ignore_scrollbar=False, horizontal_tolerance=4,
+                    vertical_tolerance=4):
         self.ignore_scrollbar = ignore_scrollbar
         self.horizontal_tolerance = horizontal_tolerance
         self.vertical_tolerance = vertical_tolerance
