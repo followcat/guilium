@@ -170,9 +170,14 @@ class Reportor(object):
                 elif width_diff > 0:
                     rectangle = (width-width_diff, body[0], width, height)
                     drawer.rectangle(rectangle, fill='blue', outline='blue')
-        previous_buttom = 0
-        previous_top = 0
-        for each in results:
+        offset_zone = {}
+        for diff in results:
+            if diff[5] == 'unmatch':
+                zone_key = (diff[0]+diff[2]+diff[4]['marginBottom'],
+                        diff[1], diff[1]+diff[3])
+                offset_zone.update({zone_key: diff[-1]['top']})
+        for diff in results:
+            each = list(diff)
             top, left, height, width = each[0], each[1], each[2], each[3]
             if height == 0 or width == 0:
                 continue
@@ -186,21 +191,30 @@ class Reportor(object):
             elif each[5] == 'unmatch':
                 if each[2] > 500:
                     continue
+                _zone_key = None
+                previous_offset = 0
+                for _k in offset_zone.keys():
+                    _top, _left, _right = _k
+                    if each[0] >= _top and _left <= each[1] < _right:
+                        if _zone_key is None:
+                            _zone_key = _k
+                        elif (each[0]-_top) < (each[0]-_zone_key[0]):
+                            _zone_key = _k
+                if _zone_key is not None:
+                    previous_offset = offset_zone[_zone_key]
                 for key, value in each[-1].items():
-                    if each[0] > previous_buttom:
-                        previous_buttom = each[0] + each[2]
-                        _top = previous_top
-                        previous_top = each[-1]['top']
-                        if math.fabs(previous_top - _top) > self.vertical_tolerance:
-                            each.append({'vertical':previous_top - _top})
+                    if key == 'top':
+                        offset_diff = value - previous_offset
+                        if math.fabs(offset_diff) > self.vertical_tolerance:
+                            each.append({'vertical':(key, offset_diff)})
                             break
                     if key in ['width', 'left']:
                         if math.fabs(value) > self.horizontal_tolerance:
-                            each.append('horizontal')
+                            each.append({'horizontal': (key, value)})
                             break
                     elif key in ['height']:
                         if math.fabs(value) > self.vertical_tolerance:
-                            each.append('vertical')
+                            each.append({'vertical': (key, value)})
                             break
                 else:
                     continue
